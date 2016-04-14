@@ -34,6 +34,15 @@ module.exports = {
     tiendaId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Tienda'
+    },
+    motorizado: {
+      nombre: String,
+      telefono: String,
+      email: String,
+      dni: Number,
+      placa: String,
+      latitud: Number,
+      longitud: Number
     }
   },
 

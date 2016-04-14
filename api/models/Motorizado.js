@@ -1,32 +1,20 @@
+var mongoose = require('mongoose');
+
 module.exports = {
   schema: {
-    direcciones: [{
-      nombre: String,
-      calle: String,
-      distrito: String,
-      ciudad: String,
-      latitud: Number,
-      longitud: Number
-    }],
-    telefono: String,
+    tiendaId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Tienda'
+    },
     nombre: String,
+    telefono: String,
     email: String,
     contrasenaHash: String,
     dni: Number,
-    beforeCreate: function(usuario, cb) {
-      bcrypt.genSalt(10, function(err, salt) {
-        bcrypt.hash(usuario.contrasenaHash, salt, function(err, hash) {
-          if (err) {
-            console.log(err);
-            cb(err);
-          } else {
-            usuario.contrasenaHash = hash;
-            cb(null, usuario);
-          }
-        });
-      });
-    }
-  },
+    placa: String,
+    latitud: Number,
+    longitud: Number
+},
 
   /**
    * constructSchema()

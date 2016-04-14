@@ -1,6 +1,7 @@
 module.exports = {
   schema: {
     nombre: String,
+    contrasenaHash: String,
     telefono: String,
     direccion: {
       calle: String,
