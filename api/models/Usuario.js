@@ -11,21 +11,8 @@ module.exports = {
     telefono: String,
     nombre: String,
     email: String,
-    contrasenaHash: String,
-    dni: Number,
-    beforeCreate: function(usuario, cb) {
-      bcrypt.genSalt(10, function(err, salt) {
-        bcrypt.hash(usuario.contrasenaHash, salt, function(err, hash) {
-          if (err) {
-            console.log(err);
-            cb(err);
-          } else {
-            usuario.contrasenaHash = hash;
-            cb(null, usuario);
-          }
-        });
-      });
-    }
+    password: String,
+    dni: Number
   },
 
   /**
@@ -41,6 +28,26 @@ module.exports = {
     // e.g. we might want to pass in a second argument to the schema constructor
     var newSchema = new sails.mongoose.Schema(schemaDefinedAbove, {
       autoIndex: false
+    });
+
+    newSchema.pre('save', function(next) {
+      var user = this;
+
+      // only hash the password if it has been modified (or is new)
+      if (!user.isModified('perfil_individual.password')) return next();
+
+      var hashedPassword = passwordHash.generate(user.perfil_individual.password);
+
+      user.perfil_individual.password = hashedPassword;
+      next();
+    });
+
+    newSchema.method('comparePassword', function(candidatePassword, cb) {
+      cb(null, passwordHash.verify(candidatePassword, this.perfil_individual.password));
+    })
+
+    newSchema.static('findByEmail', function (email, callback) {
+      return this.find({ email: email }, callback);
     });
 
     // Regardless, you must return the instantiated Schema instance.
