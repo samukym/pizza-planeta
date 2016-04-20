@@ -11,9 +11,7 @@ module.exports = {
     email: String,
     contrasenaHash: String,
     dni: Number,
-    placa: String,
-    latitud: Number,
-    longitud: Number
+    placa: String
 },
 
   /**

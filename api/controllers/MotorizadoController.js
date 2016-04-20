@@ -21,8 +21,5 @@ module.exports = {
     req.logout();
     res.send('logout successful');
   },
-  findUsuario: (tokenUsuario) / (usuario),
-  agregarDireccion: (tokenUsuario, blablabla direccion) / (usuario),
-  crearUsuario: (blablabla usuario) / (usuario, tokenUsuario),
-
+  findMotorizado: (tokenMotorizado) / (Motorizado)
 };

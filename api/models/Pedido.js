@@ -40,10 +40,12 @@ module.exports = {
       telefono: String,
       email: String,
       dni: Number,
-      placa: String,
-      latitud: Number,
-      longitud: Number
-    }
+      placa: String
+    },
+    latitud: Number,
+    longitud: Number,
+    codReciboVisa: String,
+    estado: int
   },
 
   /**
