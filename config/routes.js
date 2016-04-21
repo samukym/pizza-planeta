@@ -36,7 +36,14 @@ module.exports.routes = {
     view: 'homepage'
   },
   'get /pizzas': 'PizzaController.find',
-  'post /pizza': 'PizzaController.findPizza'
+  'post /pizza': 'PizzaController.findPizza',
+
+  'post /loginUsuario': 'UsuarioController.login',
+  'get /logoutUsuario': 'UsuarioController.logout',
+  'post /crearUsuario': 'UsuarioController.crearUsuario',
+  'post /findUsuario': 'UsuarioController.findUsuario',
+  'get /findUsuarios': 'UsuarioController.find',
+  'post /agregarDireccionUsuario': 'UsuarioController.agregarDireccion'
 
   /***************************************************************************
   *                                                                          *

@@ -1,3 +1,5 @@
+var passwordHash = require('password-hash');
+
 module.exports = {
   schema: {
     direcciones: [{
@@ -13,7 +15,8 @@ module.exports = {
     nombre: String,
     email: String,
     password: String,
-    dni: Number
+    dni: Number,
+    tipo: Number
   },
 
   /**
@@ -35,20 +38,24 @@ module.exports = {
       var user = this;
 
       // only hash the password if it has been modified (or is new)
-      if (!user.isModified('perfil_individual.password')) return next();
+      if (!user.isModified('password')) return next();
 
-      var hashedPassword = passwordHash.generate(user.perfil_individual.password);
+      var hashedPassword = passwordHash.generate(user.password);
 
-      user.perfil_individual.password = hashedPassword;
+      user.password = hashedPassword;
       next();
     });
 
     newSchema.method('comparePassword', function(candidatePassword, cb) {
-      cb(null, passwordHash.verify(candidatePassword, this.perfil_individual.password));
-    })
+      cb(null, passwordHash.verify(candidatePassword, this.password));
+    });
+
+    newSchema.method('getTipo', function(cb) {
+      return cb(null, this.get('tipo'));
+    });
 
     newSchema.static('findByEmail', function (email, callback) {
-      return this.find({ email: email }, callback);
+      return this.findOne({ email: email }, callback);
     });
 
     // Regardless, you must return the instantiated Schema instance.

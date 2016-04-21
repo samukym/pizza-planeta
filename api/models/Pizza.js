@@ -1,4 +1,3 @@
-
 module.exports = {
   schema: {
     nombre: String,
@@ -33,8 +32,8 @@ module.exports = {
     });
 
     // Or a static ("class") method:
-    newSchema.static('findPizza', function (name, callback) {
-      return this.find({ nombre: name }, callback);
+    newSchema.static('findPizza', function (id, callback) {
+      return this.find({ _id: id }, callback);
     });
 
     // Regardless, you must return the instantiated Schema instance.

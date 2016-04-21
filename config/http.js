@@ -9,6 +9,8 @@
  * http://sailsjs.org/#!/documentation/reference/sails.config/sails.config.http.html
  */
 
+var passport = require('passport');
+
 module.exports.http = {
 
   /****************************************************************************
@@ -29,11 +31,15 @@ module.exports.http = {
   * router is invoked by the "router" middleware below.)                     *
   *                                                                          *
   ***************************************************************************/
+    passportInit: passport.initialize(),
+    passportSession: passport.session(),
 
     order: [
       'startRequestTimer',
       'cookieParser',
       'session',
+      'passportInit',
+      'passportSession',
       'myRequestLogger',
       'bodyParser',
       'handleBodyParserError',

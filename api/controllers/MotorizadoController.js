@@ -21,5 +21,5 @@ module.exports = {
     req.logout();
     res.send('logout successful');
   },
-  findMotorizado: (tokenMotorizado) / (Motorizado)
+  // findMotorizado: (tokenMotorizado) / (Motorizado)
 };

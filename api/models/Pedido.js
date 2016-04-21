@@ -45,7 +45,7 @@ module.exports = {
     latitud: Number,
     longitud: Number,
     codReciboVisa: String,
-    estado: int
+    estado: Number
   },
 
   /**
