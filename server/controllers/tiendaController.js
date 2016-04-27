@@ -32,7 +32,6 @@ module.exports = {
           });
           req.session.token = token;
           console.log('LoggedIn');
-          console.log('session', req.session);
           return res.json({
             tienda: tienda,
             token: token

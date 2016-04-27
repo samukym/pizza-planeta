@@ -26,7 +26,7 @@ module.exports = function(app) {
     app.get('/tiendas', controllers.tienda.find);
     app.get('/creartiendas', controllers.tienda.crearTiendas);
 
-    app.get('*', function (req, res) {
-            res.sendfile('./public/index.html');
-        });
+    // app.get('*', function (req, res) {
+    //         res.sendFile('../../public/index.html');
+    //     });
 };

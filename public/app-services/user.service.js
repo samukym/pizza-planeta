@@ -17,6 +17,7 @@
         service.Update = Update;
         service.Delete = Delete;
         service.GetTiendas = GetTiendas;
+        service.ValidLogin = ValidLogin;
 
         return service;
 
@@ -46,6 +47,10 @@
 
         function GetTiendas() {
             return $http.get('../../tiendas').then(handleSuccess, handleError('Error recibiendo tiendas'));
+        }
+
+        function ValidLogin(request) {          
+            return $http.post('../../loginTienda', request).then(handleSuccess, handleError('Error enviando usuario'));
         }
 
         // private functions
