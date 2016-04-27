@@ -15,7 +15,7 @@ module.exports.init = function() {
     placa: String,
     tipo: {
       type: Number,
-      default: 1
+      default: 2
     }
   });
 
@@ -35,7 +35,7 @@ module.exports.init = function() {
 
   motorizadoSchema.static({
     getTipo: function() {
-      return 1;
+      return 2;
     },
     findByEmail: function(email, callback) {
       return this.findOne({

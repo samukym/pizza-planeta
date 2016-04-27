@@ -15,7 +15,7 @@ module.exports.init = function() {
     },
     tipo: {
       type: Number,
-      default: 2
+      default: 1
     }
   });
 
@@ -35,7 +35,7 @@ module.exports.init = function() {
 
   tiendaSchema.static({
     getTipo: function() {
-      return 2;
+      return 1;
     }
   });
 

@@ -10,7 +10,7 @@ module.exports.init = function() {
     telefono: String,
     tipo: {
       type: Number,
-      default: 2
+      default: 0
     },
     direcciones: [{
       nombre: String,

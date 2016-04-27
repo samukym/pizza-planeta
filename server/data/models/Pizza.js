@@ -4,6 +4,10 @@ module.exports.init = function() {
   var schema = new mongoose.Schema({
     nombre: String,
     detalle: String,
+    ingredientes: [{
+      nombre: String,
+      codigo: Number
+    }],
     tamanos: [{
       precio: Number,
       nombre: String,

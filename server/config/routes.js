@@ -10,6 +10,7 @@ module.exports = function(app) {
     app.get('/usuarios', controllers.usuario.find);
 
     app.get('/pizzas', controllers.pizza.find);
+    app.get('/crearpizzas', controllers.pizza.crearPizzas);
 
     app.post('/pedidosUsuario', middleware.validTokenUsuario, controllers.pedido.findPedidosUsuario);
     app.post('/carritoUsuario', middleware.validTokenUsuario, controllers.pedido.findCarrito);
