@@ -33,6 +33,8 @@ module.exports = {
           req.session.token = token;
           console.log('LoggedIn');
           return res.json({
+            success: true,
+            message: 'Sesión iniciada (:',
             tienda: tienda,
             token: token
           });
