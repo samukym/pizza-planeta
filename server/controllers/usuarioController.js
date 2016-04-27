@@ -13,6 +13,7 @@ module.exports = {
           error: true,
           message: 'Oops! Ocurrió un error'
         });
+        return;
       }
       if (!usuario) {
         console.log('Incorrect');
@@ -20,6 +21,7 @@ module.exports = {
           error: true,
           message: 'Usuario no encontrado'
         });
+        return;
       }
       usuario.comparePassword(req.body.password, function(err, isMatch) {
         console.log('comparePassword: ', isMatch);

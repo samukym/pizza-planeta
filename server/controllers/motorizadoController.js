@@ -12,6 +12,7 @@ module.exports = {
           error: true,
           message: 'Oops! Ocurrió un error'
         });
+        return;
       }
       if (!motorizado) {
         console.log('Incorrect');
@@ -19,6 +20,7 @@ module.exports = {
           error: true,
           message: 'Motorizado no encontrado'
         });
+        return;
       }
       motorizado.comparePassword(req.body.password, function(err, isMatch) {
         console.log('comparePassword: ', isMatch);

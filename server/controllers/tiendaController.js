@@ -3,15 +3,16 @@ var jwt = require('jsonwebtoken'),
   app = require('../../server');
 
 module.exports = {
-  // login: (idTienda, password) / (Tienda, tokenTienda)
+  // login: (id, password) / (Tienda, tokenTienda)
   login: function(req, res) {
-    Tienda.findById(req.body.idTienda, function(err, tienda) {
+    Tienda.findById(req.body.id, function(err, tienda) {
       if (err) {
         console.log('error en findById: ', err);
         res.send({
           error: true,
           message: 'Oops! Ocurrió un error'
         });
+        return;
       }
       if (!tienda) {
         console.log('Incorrect');
@@ -19,6 +20,7 @@ module.exports = {
           error: true,
           message: 'Tienda no encontrada'
         });
+        return;
       }
       tienda.comparePassword(req.body.password, function(err, isMatch) {
         console.log('comparePassword: ', isMatch);
