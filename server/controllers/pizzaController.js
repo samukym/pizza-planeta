@@ -38,7 +38,6 @@ module.exports = {
         codigo: "f"
       }]
     });
-
     var pizza2 = new Pizza({
       nombre: "Peperoni",
       detalle: "Si te gustan los embutidos, esta es para ti!",
@@ -66,7 +65,6 @@ module.exports = {
         codigo: "f"
       }]
     });
-
     var pizza3 = new Pizza({
       nombre: "Hawaiana",
       detalle: "¡Aloha! Esta pizza tiene piña",
@@ -94,7 +92,6 @@ module.exports = {
         codigo: "f"
       }]
     });
-
     var pizza4 = new Pizza({
       nombre: "Marina",
       detalle: "Todo el sabor de la costa, langostinos",
@@ -125,7 +122,6 @@ module.exports = {
         codigo: "f"
       }]
     });
-
     var pizza5 = new Pizza({
       nombre: "Vegetariana",
       detalle: "Tu mamá dice que comas tus verduras",
@@ -156,7 +152,6 @@ module.exports = {
         codigo: "f"
       }]
     });
-
     var pizza6 = new Pizza({
       nombre: "Marciana",
       detalle: "Para los que vienen de otro planeta",
@@ -190,7 +185,6 @@ module.exports = {
         codigo: "f"
       }]
     });
-
     var pizza7 = new Pizza({
       nombre: "Planetaria",
       detalle: "La favorita de la casa, de otro mundo",
@@ -224,7 +218,6 @@ module.exports = {
         codigo: "f"
       }]
     });
-
     var pizza8 = new Pizza({
       nombre: "Bién Taipá",
       detalle: "Cuando tienes hambre, viene con todo",
@@ -270,17 +263,26 @@ module.exports = {
         codigo: "f"
       }]
     });
-    pizza1.save(function(err, p) {
-      if (err) {
-        res.send({
-          error: true,
-          message: 'Oops! Ocurrió un error'
+
+    Pizza.create(pizza1, pizza2, pizza3, pizza4, pizza5, pizza6, pizza7, pizza8,
+      function(err, pizza1, pizza2, pizza3, pizza4, pizza5, pizza6, pizza7, pizza8) {
+        if (err) {
+          res.send({
+            error: true,
+            message: 'Oops! Ocurrió un error'
+          });
+        }
+        console.log('Pizzas insertada', pizza1, pizza2, pizza3, pizza4, pizza5, pizza6, pizza7, pizza8);
+        return res.json({
+          pizza1: pizza1,
+          pizza2: pizza2,
+          pizza3: pizza3,
+          pizza4: pizza4,
+          pizza5: pizza5,
+          pizza6: pizza6,
+          pizza7: pizza7,
+          pizza8: pizza8
         });
-      }
-      console.log('Pizza insertada', p);
-      return res.json({
-        pizza: p
       });
-    });
   }
 };
