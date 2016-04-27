@@ -10,7 +10,7 @@ module.exports = function(app) {
     app.get('/usuarios', controllers.usuario.find);
 
     app.get('/pizzas', controllers.pizza.find);
-    app.get('/crearpizzas', controllers.pizza.crearPizzas);
+    // app.get('/crearpizzas', controllers.pizza.crearPizzas);
 
     app.post('/pedidosUsuario', middleware.validTokenUsuario, controllers.pedido.findPedidosUsuario);
     app.post('/carritoUsuario', middleware.validTokenUsuario, controllers.pedido.findCarrito);
@@ -24,6 +24,7 @@ module.exports = function(app) {
     app.post('/logoutTienda', middleware.validTokenTienda, controllers.tienda.logout);
     app.post('/tienda', middleware.validTokenTienda, controllers.tienda.findTienda);
     app.get('/tiendas', controllers.tienda.find);
+    app.get('/creartiendas', controllers.tienda.crearTiendas);
 
     app.get('/', function (req, res) {
         res.render('index', {currentUser: req.session.user});

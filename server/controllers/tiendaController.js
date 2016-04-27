@@ -66,5 +66,60 @@ module.exports = {
   // findTienda: (idTienda) / (tienda)
   findTienda: function(req, res) {
     return res.json(req.session.user);
+  },
+  crearTiendas: function(req, res) {
+    var tienda1 = new Tienda({
+      nombre: "Javier Prado",
+      password: "tienda1",
+      telefono: "123-4567",
+      direccion: {
+        calle: "Av. Javier Prado Este 5634",
+        distrito: "La Molina",
+        ciudad: "Lima",
+        latitud: -12.073041,
+        longitud: -76.959692
+      }
+    });
+    var tienda2 = new Tienda({
+      nombre: "San Isidro",
+      password: "tienda2",
+      telefono: "123-4567",
+      direccion: {
+        calle: "Av. Petit Thouars 2530",
+        distrito: "San Isidro",
+        ciudad: "Lima",
+        latitud: -12.089273,
+        longitud: -77.032741
+      }
+    });
+    var tienda3 = new Tienda({
+      nombre: "San Miguel",
+      password: "tienda3",
+      telefono: "363-4526",
+      direccion: {
+        calle: "Av. La Marina 1700",
+        distrito: "La Molina",
+        ciudad: "Lima",
+        latitud: -12.078389,
+        longitud: -77.079995
+      }
+    });
+
+    Tienda.create(tienda1, tienda2, tienda3,
+      function(err, tienda1, tienda2, tienda3) {
+        if (err) {
+          res.send({
+            error: true,
+            message: 'Oops! Ocurrió un error'
+          });
+        }
+        console.log('Tiendas insertada', tienda1, tienda2, tienda3);
+        return res.json({
+          tienda1: tienda1,
+          tienda2: tienda2,
+          tienda3: tienda3
+        });
+      });
   }
+
 };
