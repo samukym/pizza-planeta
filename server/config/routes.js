@@ -26,11 +26,7 @@ module.exports = function(app) {
     app.get('/tiendas', controllers.tienda.find);
     app.get('/creartiendas', controllers.tienda.crearTiendas);
 
-    app.get('/', function (req, res) {
-        res.render('index', {currentUser: req.session.user});
-    });
-
     app.get('*', function (req, res) {
-        res.render('index', {currentUser: req.session.user});
-    });
+            res.sendfile('./public/index.html');
+        });
 };
