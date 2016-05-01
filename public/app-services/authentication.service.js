@@ -15,22 +15,47 @@
 
         return service;
 
-        function Login(username, password, callback) {
+        function Login(request, callback) {
+          var resp;
+          UserService.ValidLogin(request)
+            .then(function(response) {
+              if (response.success) {
+                console.log('funciono el login (:');
+                console.log(response.token);
+                $rootScope.globals = {
+                    currentUser: {
+                        username: response.tienda._id,
+                        authdata: response.token
+                    }
+                };
+                $cookieStore.put('globals', $rootScope.globals);
+                resp = { success: true, message: 'Sesión iniciada papu :)' };
+
+                //FlashService.Success('Registration successful', true);
+                //$location.path('/home');
+              } else {
+                // FlashService.Error(response.message);
+                // vm.dataLoading = false;
+                resp = { success: false, message: 'Contraseña incorrecta' };
+
+              }
+              callback(resp);
+            });
 
             /* Dummy authentication for testing, uses $timeout to simulate api call
              ----------------------------------------------*/
-            $timeout(function () {
-                var response;
-                UserService.GetByUsername(username)
-                    .then(function (user) {
-                        if (user !== null && user.password === password) {
-                            response = { success: true };
-                        } else {
-                            response = { success: false, message: 'Username or password is incorrect' };
-                        }
-                        callback(response);
-                    });
-            }, 1000);
+            // $timeout(function () {
+            //     var response;
+            //     UserService.GetByUsername(username)
+            //         .then(function (user) {
+            //             if (user !== null && user.password === password) {
+            //                 response = { success: true };
+            //             } else {
+            //                 response = { success: false, message: 'Username or password is incorrect' };
+            //             }
+            //             callback(response);
+            //         });
+            // }, 1000);
 
             /* Use this for real authentication
              ----------------------------------------------*/
@@ -39,7 +64,7 @@
             //        callback(response);
             //    });
 
-        }
+        };
 
         function SetCredentials(username, password) {
             var authdata = Base64.encode(username + ':' + password);

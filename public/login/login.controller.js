@@ -33,25 +33,38 @@
         id: vm.username,
         password: vm.password
       };
-      UserService.ValidLogin(request)
-        .then(function(response) {
-          if (response.success) {
-            console.log('funciono (:');
-            console.log(response.token);
-            $rootScope.globals = {
-                currentUser: {
-                    username: response.tienda._id,
-                    authdata: response.token
-                }
-            };
-            $cookieStore.put('globals', $rootScope.globals);
-            FlashService.Success('Registration successful', true);
-            $location.path('/home');
-          } else {
-            FlashService.Error(response.message);
-            vm.dataLoading = false;
-          }
-        });
+      AuthenticationService.Login(request, function (response){
+                  if(response.success){
+                    FlashService.Success(response.message, true);
+                    $location.path('/home');
+                  }
+                  else {
+                    FlashService.Error(response.message);
+                  }
+                  vm.dataLoading = false;
+      });
+    }
+
+
+      // UserService.ValidLogin(request)
+      //   .then(function(response) {
+      //     if (response.success) {
+      //       console.log('funciono (:');
+      //       console.log(response.token);
+      //       $rootScope.globals = {
+      //           currentUser: {
+      //               username: response.tienda._id,
+      //               authdata: response.token
+      //           }
+      //       };
+      //       $cookieStore.put('globals', $rootScope.globals);
+      //       FlashService.Success('Registration successful', true);
+      //       $location.path('/home');
+      //     } else {
+      //       FlashService.Error(response.message);
+      //       vm.dataLoading = false;
+      //     }
+      //   });
 
 
 
@@ -65,7 +78,7 @@
       //         vm.dataLoading = false;
       //     }
       // });
-    }
+
   }
 
 })();

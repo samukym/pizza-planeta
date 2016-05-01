@@ -16,8 +16,8 @@
         initController();
 
         function initController() {
-            loadCurrentUser();
-            loadAllUsers();
+            //loadCurrentUser();
+            //loadAllUsers();
         }
 
         function loadCurrentUser() {
