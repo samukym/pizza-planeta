@@ -7,6 +7,7 @@ module.exports.init = function() {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Tienda'
     },
+    username: String,
     nombre: String,
     telefono: String,
     email: String,
@@ -37,9 +38,9 @@ module.exports.init = function() {
     getTipo: function() {
       return 2;
     },
-    findByEmail: function(email, callback) {
+    findByUsername: function(username, callback) {
       return this.findOne({
-        email: email
+        username: username
       }, callback);
     }
   });
