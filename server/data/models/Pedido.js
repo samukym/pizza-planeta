@@ -46,7 +46,12 @@ module.exports.init = function() {
     longitud: Number,
     codReciboVisa: String,
     estado: String,
-    coEst: Number
+    coEst: Number,
+    ruta: {
+      tiempo: Number,
+      distancia: Number,
+      points: String
+    }
   });
 
   var Pedido = mongoose.model('Pedido', pedidoSchema);
