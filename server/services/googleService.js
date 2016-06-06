@@ -1,5 +1,5 @@
 /*jshint node: true */
-"use strict";
+/*"use strict";
 
 // var config = require('../../server').config;
 var env = process.env.NODE_ENV || 'development';
@@ -37,3 +37,4 @@ module.exports = {
     });
   }
 };
+*/

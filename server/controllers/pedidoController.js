@@ -2,10 +2,10 @@
 "use strict";
 
 var Tienda = require('mongoose').model('Tienda'),
-  Pedido = require('mongoose').model('Pedido'),
-  Pizza = require('mongoose').model('Pizza'),
-  Google = require('../services/googleService'),
-  app = require('../../server');
+Pedido = require('mongoose').model('Pedido'),
+Pizza = require('mongoose').model('Pizza'),
+Google = require('../services/googleService'),
+app = require('../../server');
 
 module.exports = {
   // findPedidosHistoricosUsuario: (tokenUsuario) / (lista de pedidos)
@@ -55,79 +55,90 @@ module.exports = {
       return res.json(pedido);
     });
   },
-  // agregarPizzaCarrito: (tokenUsuario, idPedido, idPizza, codTamano, cantidad, comentario)/(pedido actualizado)
+  // agregarPizzaCarrito: (tokenUsuario, idTienda, idPizza, codTamano, cantidad, comentario)/(pedido actualizado)
   //primero pasa por el middleware donde se settea req.nuevaPizza
   agregarPizzaCarrito: function(req, res) {
-    if (!req.body.idPedido) {
-      var pedido = new Pedido({
-        usuarioId: req.session.user._id,
-        pizzas: [req.nuevaPizza],
-        estado: "Sin confirmar",
-        coEst: 0
-      });
-      pedido.save(function(err, pedido) {
-        if (err) {
-          res.send({
-            error: true,
-            message: 'Oops! Ocurrió un error'
-          });
-          return;
-        }
-        console.log('Pedido creado', pedido);
-        return res.json(pedido);
-      });
-    } else {
-      Pedido.findById(req.body.idPedido, function(err, pedido) {
-        if (err) {
-          console.log('error en findById: ', err);
-          res.send({
-            error: true,
-            message: 'Oops! Ocurrió un error'
-          });
-          return;
-        }
-        if (!pedido) {
-          console.log('Incorrect');
-          res.send({
-            error: true,
-            message: 'Pedido no encontrado'
-          });
-          return;
-        }
-        pedido.pizzas.push(req.nuevaPizza);
-        pedido.save();
-        return res.json(pedido);
-      });
-    }
-  },
-  // quitarPizzaCarrito: (tokenUsuario, idPizza, idPedido)/(pedido actualizado)
-  quitarPizzaCarrito: function(req, res) {
-    Pedido.findById(req.body.idPedido, function(err, pedido) {
+    console.log(req.session.user._id);
+    Pedido.findOne({
+      usuarioId: req.session.user._id,
+      coEst: 0
+    }).exec(function(err, pedido) {
       if (err) {
-        console.log('error en findById: ', err);
+        console.log('error en find: ', err);
         res.send({
           error: true,
           message: 'Oops! Ocurrió un error'
         });
         return;
       }
+      //SI NO HAY UN PEDIDO CREADO, SE CREA AL MOMENTO DE AGREGAR LA PRIMERA PIZZA
       if (!pedido) {
-        console.log('Incorrect');
-        res.send({
-          error: true,
-          message: 'Pedido no encontrado'
+        pedido = new Pedido({
+          usuarioId: req.session.user._id,
+          idTienda: req.body.idTienda,
+          estado: "Sin confirmar",
+          coEst: 0
         });
-        return;
+        pedido.save(function(err, pedido) {
+          if (err) {
+            res.send({
+              error: true,
+              message: 'Oops! Ocurrió un error'
+            });
+            return;
+          }
+          console.log('Pedido creado', pedido);
+        });
       }
-      for (var i = 0; i < pedido.pizzas.length; i++) {
-        if (pedido.pizzas[i]._id === req.body.idPizza) {
-          pedido.pizzas.splice(i, 0);
-          break;
+      pedido.pizzas.push(req.nuevaPizza);
+      console.log(req.nuevaPizza);
+      pedido.save(function(err){
+        if(err){
+          console.log("No se pudo insertar la pizza en pedido");
         }
-      }
-      pedido.save();
+      });
       return res.json(pedido);
     });
+  },
+  // quitarPizzaCarrito: (tokenUsuario, idPizza, idPedido)/(pedido actualizado)
+  quitarPizzaCarrito: function(req, res) {
+    Pedido.findOne({
+        usuarioId: req.session.user._id,
+        coEst: 0
+      }).exec(function(err, pedido){
+        if(err){
+          console.log('error en quitarPizzaCarrito: ', err);
+          res.send({
+            error: true,
+            message: 'Oops! Ocurrió un error'
+          });
+          return;
+        }
+        if(!pedido){
+          res.send({
+            error:true,
+            message: 'Pedido no encontrado'
+          });
+          return;
+        }
+        Pedido.update(
+          {_id : pedido._id },
+          { $pull: { pizzas : { _id : req.body.idPizzaCarrito } } }, 
+          function (err){
+            if(err){
+              res.send({
+                error: true,
+                message: "Pizza no existe en el carrito"
+              });
+              return;
+            }
+            else{
+              res.send({message: "OK"});
+              return;
+            }
+          }
+          );
+      });
   },
   // confirmarCarrito: (tokenUsuario, idPedido,comentarioPedido,idDireccion,codReciboVisa)/(pedido con tienda dentro | msgError)
   confirmarCarrito: function(req, res) {
