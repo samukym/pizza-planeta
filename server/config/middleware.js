@@ -110,10 +110,8 @@ module.exports = {
       });
     }
   },
-  findPizza: function(req, res) {
-    Pizza.findOne({
-      _id: req.body.idPizza
-    }, function(err, pizza) {
+  findPizza: function(req, res, next) {
+    Pizza.findById(req.body.idPizza, function(err, pizza) {
       if (err) {
         res.send({
           error: true,

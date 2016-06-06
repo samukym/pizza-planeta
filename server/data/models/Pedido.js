@@ -45,8 +45,14 @@ module.exports.init = function() {
     latitud: Number,
     longitud: Number,
     codReciboVisa: String,
-    estado: String,
-    coEst: Number,
+    estado: {
+      type: String,
+      enum: ['Sin confirmar', 'Confirmado', 'Preparando', 'En el horno', 'En camino', 'Entregado', 'Cancelado']
+    },
+    coEst: {
+      type: Number,
+      enum: [0, 10, 11, 12, 13, 20, 30]
+    },
     ruta: {
       tiempo: Number,
       distancia: Number,

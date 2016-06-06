@@ -1,19 +1,20 @@
 {
-    "name": "pizzaplaneta",
-    "description": "Los odio a todos",
-    "scripts": {
-        "start": "node server.js"
-    },
-    "dependencies": {
-        "express": "^4.13.3",
-        "ejs": "^2.3.4",
-        "body-parser": "^1.14.2",
-        "cookie-parser": "~1.4.0",
-        "mongoose":"^4.3.4",
-        "connect-busboy": "0.0.2",
-        "express-session": "^1.12.1",
-        "jade": "^1.11.0",
-        "jsonwebtoken": "^5.0.4",
-        "password-hash": "^1.2.2"
-    }
+  "name": "pizzaplaneta",
+  "description": "Los odio a todos",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "connect-busboy": "0.0.2",
+    "cookie-parser": "~1.4.0",
+    "ejs": "^2.3.4",
+    "express": "^4.13.3",
+    "express-session": "^1.12.1",
+    "jade": "^1.11.0",
+    "jsonwebtoken": "^5.0.4",
+    "mongoose": "^4.3.4",
+    "password-hash": "^1.2.2",
+    "request": "^2.72.0"
+  }
 }
