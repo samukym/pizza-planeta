@@ -7,6 +7,44 @@ Pizza = require('mongoose').model('Pizza'),
 Google = require('../services/googleService'),
 app = require('../../server');
 
+function getTiendaCercana(pedido){
+  return new Promise (function(res, rej){
+   Tienda.getTiendaCercana(pedido.direccion.latitud, 
+    pedido.direccion.longitud, 
+    function(err, tienda){
+      if(!tienda){
+        rej(err);
+      }
+      console.log("enviado id: "+ tienda._id);
+      res(tienda._id);  
+    });
+ });
+}
+function getRutaTienda(pedido){
+  return new Promise(function(res, rej){
+    Tienda.findOne({_id: pedido.tiendaId}, function(err, tienda){
+      if(!tienda){
+        rej(Error("no tienda"));
+        return;
+      }else if(err){
+        rej(err);
+        return;
+      }
+      Google.getRuta(pedido.direccion.latitud, pedido.direccion.longitud,
+        tienda.direccion.latitud,
+        tienda.direccion.longitud, function(err, ruta){
+          if(err){
+            rej(err);        
+          }else if(!ruta){
+            rej(Error("No ruta disponible"));
+          }
+          console.log("enviado ruta:" + ruta.tiempo);      
+          res(ruta);
+        });
+    });
+  });
+}
+
 module.exports = {
   // findPedidosHistoricosUsuario: (tokenUsuario) / (lista de pedidos)
   findPedidosUsuario: function(req, res) {
@@ -75,7 +113,6 @@ module.exports = {
       if (!pedido) {
         pedido = new Pedido({
           usuarioId: req.session.user._id,
-          idTienda: req.body.idTienda,
           estado: "Sin confirmar",
           coEst: 0
         });
@@ -103,24 +140,29 @@ module.exports = {
   // quitarPizzaCarrito: (tokenUsuario, idPizza, idPedido)/(pedido actualizado)
   quitarPizzaCarrito: function(req, res) {
     Pedido.findOne({
-        usuarioId: req.session.user._id,
-        coEst: 0
-      }).exec(function(err, pedido){
-        if(err){
-          console.log('error en quitarPizzaCarrito: ', err);
-          res.send({
-            error: true,
-            message: 'Oops! Ocurrió un error'
-          });
-          return;
-        }
-        if(!pedido){
-          res.send({
-            error:true,
-            message: 'Pedido no encontrado'
-          });
-          return;
-        }
+      usuarioId: req.session.user._id,
+      coEst: 0
+    }).exec(function(err, pedido){
+      if(err){
+        console.log('error en quitarPizzaCarrito: ', err);
+        res.send({
+          error: true,
+          message: 'Oops! Ocurrió un error'
+        });
+        return;
+      }else if(!pedido){
+        res.send({
+          error:true,
+          message: 'Pedido no encontrado'
+        });
+        return;
+      }else if(pedido.estado != "Sin confirmar"){
+        res.send({
+          error: true,
+          message: 'No puedes eliminar una pizza si el pedido ya ha sido confirmado'
+        });
+        return;
+      }else{
         Pedido.update(
           {_id : pedido._id },
           { $pull: { pizzas : { _id : req.body.idPizzaCarrito } } }, 
@@ -136,27 +178,25 @@ module.exports = {
               res.send({message: "OK"});
               return;
             }
-          }
-          );
-      });
+          });
+        }
+    });
   },
-  // confirmarCarrito: (tokenUsuario, idPedido,comentarioPedido,idDireccion,codReciboVisa)/(pedido con tienda dentro | msgError)
+  //NOTA SAMUEL: la direccoin que se pone deberia ser la del pedido no?
+  // confirmarCarrito: (tokenUsuario,comentarioPedido,idDireccion,codReciboVisa)/(pedido con tienda dentro | msgError)
   confirmarCarrito: function(req, res) {
-    Pedido.findById(req.body.idPedido, function(err, pedido) {
-      if (err) {
-        console.log('error en findById: ', err);
+    Pedido.findOne({usuarioId: req.session.user._id}, function(err, pedido) {
+      if(err){
+        throw err;
+      }else if(!pedido){
         res.send({
           error: true,
-          message: 'Oops! Ocurrió un error'
+          message: "Pizza no existe en el carrito"
         });
         return;
       }
-      if (!pedido) {
-        console.log('Incorrect');
-        res.send({
-          error: true,
-          message: 'Pedido no encontrado'
-        });
+      if(pedido.estado != 'Sin confirmar'){
+        console.error("El pedido debe tener estado SIN CONFIRMAR");
         return;
       }
       var precioTotal = 0;
@@ -165,28 +205,51 @@ module.exports = {
       }
       var precioSubtotal = precioTotal * 0.82;
       var precioIgv = precioTotal * 0.18;
-      var direccion = {};
-      for (var i = 0; i < req.session.user.direcciones.length; i++) {
-        if (req.session.user.direcciones[i]._id === req.body.idDireccion) {
-          var direccion = req.session.user.direcciones[i];
-          break;
-        }
-      }
+
       pedido.precioSubtotal = precioSubtotal;
       pedido.precioIgv = precioIgv;
       pedido.precioTotal = precioTotal;
       pedido.comentario = req.body.comentarioPedido;
       pedido.fecha = new Date();
-      pedido.direccion = direccion;
-      pedido.tiendaId = Tienda.getTiendaCercana(direccion.latitud, direccion.longitud)._id;
       pedido.codReciboVisa = req.body.codReciboVisa;
       pedido.estado = "Confirmado";
       pedido.coEst = 10;
-      pedido.ruta = Google.getRuta(direccion.latitud, direccion.longitud,
-        Tienda.getTiendaCercana(direccion.latitud, direccion.longitud).direccion.latitud,
-        Tienda.getTiendaCercana(direccion.latitud, direccion.longitud).direccion.longitud);
-      pedido.save();
-      return res.json(pedido);
+      pedido.direccion = {
+        "nombre" : "Universidad de Lima",
+        "calle" : "Manuel Olguín",
+        "distrito" : "La Molina",
+        "ciudad" : "Lima",
+        "latitud" : "-12.08394",
+        "longitud" : "-76.97064"
+      };
+
+      getTiendaCercana(pedido).then(function(idTienda){
+        pedido.tiendaId = idTienda;
+        return pedido;
+      })
+      .then(function(pedido){
+        return getRutaTienda(pedido).then(function(ruta){
+          pedido.ruta = ruta;
+          return pedido;
+        },function(err){
+          res.send({
+            error: true,
+            message: "No se puedo obtener la ruta"
+          });
+          return;;
+        });
+      })
+      .then(function(pedido){
+        pedido.estado="Confirmado";
+        pedido.save();
+        return res.json(pedido);
+      },function(err){
+        res.send({
+          error: true,
+          message: "No se pudo confirmar el pedido"
+        });
+        return;
+      });
     });
   },
   //findPedidosActivosTienda: (tokenTienda) / (lista de pedidos),

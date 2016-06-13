@@ -24,7 +24,7 @@ module.exports = {
       }
       tienda.comparePassword(req.body.password, function(err, isMatch) {
         console.log('comparePassword: ', isMatch);
-        if (isMatch) {
+        if (!isMatch) {
           // Si es correcta generamos el token
           var token = jwt.sign(tienda, app.get('superSecret'), {
             expiresIn: 86400, // tiempo de expiración
