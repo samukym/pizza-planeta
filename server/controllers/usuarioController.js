@@ -93,13 +93,14 @@ module.exports = {
       ciudad: req.body.ciudad,
       latitud: req.body.latitud,
       longitud: req.body.longitud
-    });
+    }); 
     req.session.user.save(function(err, usuario) {
       if (err) {
         res.send({
           error: true,
           message: 'Oops! Ocurrió un error'
         });
+        return;
       }
       return res.json({
         usuario: usuario,

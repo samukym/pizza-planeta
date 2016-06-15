@@ -182,12 +182,16 @@ module.exports = {
         }
     });
   },
-  //NOTA SAMUEL: la direccoin que se pone deberia ser la del pedido no?
+
   // confirmarCarrito: (tokenUsuario,comentarioPedido,idDireccion,codReciboVisa)/(pedido con tienda dentro | msgError)
   confirmarCarrito: function(req, res) {
     Pedido.findOne({usuarioId: req.session.user._id}, function(err, pedido) {
       if(err){
-        throw err;
+        res.send({
+          error: true,
+          message: "Error en la busqueda del carrito"
+        });
+        return;
       }else if(!pedido){
         res.send({
           error: true,
@@ -214,14 +218,24 @@ module.exports = {
       pedido.codReciboVisa = req.body.codReciboVisa;
       pedido.estado = "Confirmado";
       pedido.coEst = 10;
-      pedido.direccion = {
+      
+      var direccion = {};
+      for (var i = 0; i < req.session.user.direcciones.length; i++) {
+        if (req.session.user.direcciones[i]._id === req.body.idDireccion) {
+          direccion = req.session.user.direcciones[i];
+          break;
+        }
+      }
+      pedido.direccion = direccion;
+
+     /*pedido.direccion = {
         "nombre" : "Universidad de Lima",
         "calle" : "Manuel Olguín",
         "distrito" : "La Molina",
         "ciudad" : "Lima",
         "latitud" : "-12.08394",
         "longitud" : "-76.97064"
-      };
+      };*/
 
       getTiendaCercana(pedido).then(function(idTienda){
         pedido.tiendaId = idTienda;
