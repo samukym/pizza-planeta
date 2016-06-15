@@ -15,7 +15,6 @@ function getTiendaCercana(pedido){
       if(!tienda){
         rej(err);
       }
-      console.log("enviado id: "+ tienda._id);
       res(tienda._id);  
     });
  });
@@ -37,8 +36,7 @@ function getRutaTienda(pedido){
             rej(err);        
           }else if(!ruta){
             rej(Error("No ruta disponible"));
-          }
-          console.log("enviado ruta:" + ruta.tiempo);      
+          }     
           res(ruta);
         });
     });
@@ -200,7 +198,10 @@ module.exports = {
         return;
       }
       if(pedido.estado != 'Sin confirmar'){
-        console.error("El pedido debe tener estado SIN CONFIRMAR");
+        res.send({
+          error: true,
+          message: "el pedido tiene que estar sin confirmar"
+        });
         return;
       }
       var precioTotal = 0;
@@ -227,15 +228,6 @@ module.exports = {
         }
       }
       pedido.direccion = direccion;
-
-     /*pedido.direccion = {
-        "nombre" : "Universidad de Lima",
-        "calle" : "Manuel Olguín",
-        "distrito" : "La Molina",
-        "ciudad" : "Lima",
-        "latitud" : "-12.08394",
-        "longitud" : "-76.97064"
-      };*/
 
       getTiendaCercana(pedido).then(function(idTienda){
         pedido.tiendaId = idTienda;

@@ -83,31 +83,26 @@ module.exports = {
     });
   },
 
-  //agregarDireccion: (nombre, calle, distrito, ciudad, latitud, longitud) / (usuario, tokenUsuario)
+  //agregarDireccion: (nombre, calle, distrito, ciudad, latitud, longitud) / (resp)
   //funciona
   agregarDireccion: function(req, res) {
-    req.session.user.direcciones.push({
-      nombre: req.body.nombre,
-      calle: req.body.calle,
-      distrito: req.body.distrito,
-      ciudad: req.body.ciudad,
-      latitud: req.body.latitud,
-      longitud: req.body.longitud
-    }); 
-    req.session.user.save(function(err, usuario) {
-      if (err) {
-        res.send({
-          error: true,
-          message: 'Oops! Ocurrió un error'
+    Usuario.update( {_id : req.session.user._id}, 
+      {$push: {direcciones: { 
+        nombre : req.body.nombre,         
+        calle : req.body.calle,         
+        distrito : req.body.distrito,         
+        ciudad : req.body.ciudad,         
+        latitud : req.body.latitud,         
+        longitud : req.body.longitud }}
+      }, function(err, resp){
+        if(err){
+          console.error("error insertando direccion");
+          return;
+        }
+        return res.json({
+          respuesta: resp
         });
-        return;
-      }
-      return res.json({
-        usuario: usuario,
-        token: req.body.token
       });
-    });
-
   },
 
   //funciona
