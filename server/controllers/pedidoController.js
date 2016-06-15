@@ -9,13 +9,13 @@ app = require('../../server');
 
 function getTiendaCercana(pedido){
   return new Promise (function(res, rej){
-   Tienda.getTiendaCercana(pedido.direccion.latitud, 
-    pedido.direccion.longitud, 
+   Tienda.getTiendaCercana(pedido.direccion.latitud,
+    pedido.direccion.longitud,
     function(err, tienda){
       if(!tienda){
         rej(err);
       }
-      res(tienda._id);  
+      res(tienda._id);
     });
  });
 }
@@ -33,10 +33,10 @@ function getRutaTienda(pedido){
         tienda.direccion.latitud,
         tienda.direccion.longitud, function(err, ruta){
           if(err){
-            rej(err);        
+            rej(err);
           }else if(!ruta){
             rej(Error("No ruta disponible"));
-          }     
+          }
           res(ruta);
         });
     });
@@ -87,6 +87,7 @@ module.exports = {
           error: true,
           message: 'No hay ningún pedido activo'
         });
+        return;
       }
       return res.json(pedido);
     });
@@ -163,7 +164,7 @@ module.exports = {
       }else{
         Pedido.update(
           {_id : pedido._id },
-          { $pull: { pizzas : { _id : req.body.idPizzaCarrito } } }, 
+          { $pull: { pizzas : { _id : req.body.idPizzaCarrito } } },
           function (err){
             if(err){
               res.send({
@@ -219,7 +220,7 @@ module.exports = {
       pedido.codReciboVisa = req.body.codReciboVisa;
       pedido.estado = "Confirmado";
       pedido.coEst = 10;
-      
+
       var direccion = {};
       for (var i = 0; i < req.session.user.direcciones.length; i++) {
         if (req.session.user.direcciones[i]._id === req.body.idDireccion) {
