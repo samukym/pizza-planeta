@@ -87,7 +87,9 @@ module.exports = {
           error: true,
           message: 'No hay ningún pedido activo'
         });
+        return;
       }
+
       return res.json(pedido);
     });
   },
@@ -126,12 +128,12 @@ module.exports = {
         });
       }
       pedido.pizzas.push(req.nuevaPizza);
-      console.log(req.nuevaPizza);
+
       pedido.save(function(err){
         if(err){
           console.log("No se pudo insertar la pizza en pedido");
         }
-      });
+      }); 
       return res.json(pedido);
     });
   },
@@ -177,7 +179,7 @@ module.exports = {
               return;
             }
           });
-        }
+      }
     });
   },
 

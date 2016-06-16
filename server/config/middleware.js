@@ -111,12 +111,14 @@ module.exports = {
     }
   },
   findPizza: function(req, res, next) {
-    Pizza.findById(req.body.idPizza, function(err, pizza) {
+    Pizza.findOne({_id: req.body.idPizza}, function(err, pizza) {
       if (err) {
-        res.send({
-          error: true,
-          message: 'Esta pizza no existe'
-        });
+        res.send({error: true, message: 'error buscando la pizza'});
+        return;
+      }
+      if(!pizza){
+        res.send({error: true, message: 'Esta pizza no existe'});
+        return;
       }
       var tamano = {};
       for (var i in pizza.tamanos) {
@@ -129,7 +131,8 @@ module.exports = {
         detalle: pizza.detalle,
         comentario: req.body.comentario,
         cantidad: req.body.cantidad,
-        tamano: tamano
+        tamano: tamano,
+        ingredientes: pizza.ingredientes
       };
       req.nuevaPizza = nuevaPizza;
       next();
