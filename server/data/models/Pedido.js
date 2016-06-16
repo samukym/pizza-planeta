@@ -12,7 +12,11 @@ module.exports.init = function() {
         nombre: String,
         kcal: Number,
         codigo: String
-      }
+      },
+      ingredientes: [{
+        nombre: String,
+        codigo: Number
+      }] 
     }],
     precioSubtotal: Number,
     precioIgv: Number,

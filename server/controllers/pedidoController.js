@@ -69,7 +69,6 @@ module.exports = {
   },
   // findCarrito: (tokenUsuario) /(pedido activo)
   findCarrito: function(req, res) {
-    console.log(req.session.user._id);
     Pedido.findOne({
       usuarioId: req.session.user._id,
       coEst: 0
@@ -95,8 +94,7 @@ module.exports = {
   },
   // agregarPizzaCarrito: (tokenUsuario, idTienda, idPizza, codTamano, cantidad, comentario)/(pedido actualizado)
   //primero pasa por el middleware donde se settea req.nuevaPizza
-  agregarPizzaCarrito: function(req, res) {
-    console.log(req.session.user._id);
+  agregarPizzaCarrito: function(req, res) { 
     Pedido.findOne({
       usuarioId: req.session.user._id,
       coEst: 0
@@ -118,15 +116,14 @@ module.exports = {
         });
         pedido.save(function(err, pedido) {
           if (err) {
-            res.send({
-              error: true,
-              message: 'Oops! Ocurrió un error'
-            });
+            res.send({error: true, message: 'Oops! Ocurrió un error'});
             return;
           }
           console.log('Pedido creado', pedido);
         });
       }
+      console.log(req.nuevaPizza);
+
       pedido.pizzas.push(req.nuevaPizza);
 
       pedido.save(function(err){
