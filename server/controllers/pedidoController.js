@@ -2,39 +2,47 @@
 "use strict";
 
 var Tienda = require('mongoose').model('Tienda'),
-Pedido = require('mongoose').model('Pedido'),
-Pizza = require('mongoose').model('Pizza'),
-Google = require('../services/googleService'),
-app = require('../../server');
+  Pedido = require('mongoose').model('Pedido'),
+  Pizza = require('mongoose').model('Pizza'),
+  Google = require('../services/googleService'),
+  Distance = require('../services/distanceService');
 
-function getTiendaCercana(pedido){
-  return new Promise (function(res, rej){
-   Tienda.getTiendaCercana(pedido.direccion.latitud,
-    pedido.direccion.longitud,
-    function(err, tienda){
-      if(!tienda){
-        rej(err);
-      }
-      res(tienda._id);
-    });
- });
+var app = require('../../server'),
+  io = require('socket.io')(app);
+
+
+function getTiendaCercana(pedido) {
+  return new Promise(function(res, rej) {
+    Tienda.getTiendaCercana(pedido.direccion.latitud,
+      pedido.direccion.longitud,
+      function(err, tienda) {
+        if (!tienda) {
+          rej(err);
+        }
+        res(tienda);
+      });
+  });
 }
-function getRutaTienda(pedido){
-  return new Promise(function(res, rej){
-    Tienda.findOne({_id: pedido.tiendaId}, function(err, tienda){
-      if(!tienda){
+
+function getRutaTienda(pedido) {
+  return new Promise(function(res, rej) {
+    Tienda.findOne({
+      _id: pedido.tiendaId
+    }, function(err, tienda) {
+      if (!tienda) {
         rej(Error("no tienda"));
         return;
-      }else if(err){
+      } else if (err) {
         rej(err);
         return;
       }
       Google.getRuta(pedido.direccion.latitud, pedido.direccion.longitud,
         tienda.direccion.latitud,
-        tienda.direccion.longitud, function(err, ruta){
-          if(err){
+        tienda.direccion.longitud,
+        function(err, ruta) {
+          if (err) {
             rej(err);
-          }else if(!ruta){
+          } else if (!ruta) {
             rej(Error("No ruta disponible"));
           }
           res(ruta);
@@ -94,7 +102,7 @@ module.exports = {
   },
   // agregarPizzaCarrito: (tokenUsuario, idTienda, idPizza, codTamano, cantidad, comentario)/(pedido actualizado)
   //primero pasa por el middleware donde se settea req.nuevaPizza
-  agregarPizzaCarrito: function(req, res) { 
+  agregarPizzaCarrito: function(req, res) {
     Pedido.findOne({
       usuarioId: req.session.user._id,
       coEst: 0
@@ -116,7 +124,10 @@ module.exports = {
         });
         pedido.save(function(err, pedido) {
           if (err) {
-            res.send({error: true, message: 'Oops! Ocurrió un error'});
+            res.send({
+              error: true,
+              message: 'Oops! Ocurrió un error'
+            });
             return;
           }
           console.log('Pedido creado', pedido);
@@ -126,11 +137,11 @@ module.exports = {
 
       pedido.pizzas.push(req.nuevaPizza);
 
-      pedido.save(function(err){
-        if(err){
+      pedido.save(function(err) {
+        if (err) {
           console.log("No se pudo insertar la pizza en pedido");
         }
-      }); 
+      });
       return res.json(pedido);
     });
   },
@@ -139,40 +150,47 @@ module.exports = {
     Pedido.findOne({
       usuarioId: req.session.user._id,
       coEst: 0
-    }).exec(function(err, pedido){
-      if(err){
+    }).exec(function(err, pedido) {
+      if (err) {
         console.log('error en quitarPizzaCarrito: ', err);
         res.send({
           error: true,
           message: 'Oops! Ocurrió un error'
         });
         return;
-      }else if(!pedido){
+      } else if (!pedido) {
         res.send({
-          error:true,
+          error: true,
           message: 'Pedido no encontrado'
         });
         return;
-      }else if(pedido.estado != "Sin confirmar"){
+      } else if (pedido.estado != "Sin confirmar") {
         res.send({
           error: true,
           message: 'No puedes eliminar una pizza si el pedido ya ha sido confirmado'
         });
         return;
-      }else{
-        Pedido.update(
-          {_id : pedido._id },
-          { $pull: { pizzas : { _id : req.body.idPizzaCarrito } } },
-          function (err){
-            if(err){
+      } else {
+        Pedido.update({
+            _id: pedido._id
+          }, {
+            $pull: {
+              pizzas: {
+                _id: req.body.idPizzaCarrito
+              }
+            }
+          },
+          function(err) {
+            if (err) {
               res.send({
                 error: true,
                 message: "Pizza no existe en el carrito"
               });
               return;
-            }
-            else{
-              res.send({message: "OK"});
+            } else {
+              res.send({
+                message: "OK"
+              });
               return;
             }
           });
@@ -182,21 +200,23 @@ module.exports = {
 
   // confirmarCarrito: (tokenUsuario,comentarioPedido,idDireccion,codReciboVisa)/(pedido con tienda dentro | msgError)
   confirmarCarrito: function(req, res) {
-    Pedido.findOne({usuarioId: req.session.user._id}, function(err, pedido) {
-      if(err){
+    Pedido.findOne({
+      usuarioId: req.session.user._id
+    }, function(err, pedido) {
+      if (err) {
         res.send({
           error: true,
           message: "Error en la busqueda del carrito"
         });
         return;
-      }else if(!pedido){
+      } else if (!pedido) {
         res.send({
           error: true,
           message: "Pizza no existe en el carrito"
         });
         return;
       }
-      if(pedido.estado != 'Sin confirmar'){
+      if (pedido.estado != 'Sin confirmar') {
         res.send({
           error: true,
           message: "el pedido tiene que estar sin confirmar"
@@ -228,33 +248,35 @@ module.exports = {
       }
       pedido.direccion = direccion;
 
-      getTiendaCercana(pedido).then(function(idTienda){
-        pedido.tiendaId = idTienda;
-        return pedido;
-      })
-      .then(function(pedido){
-        return getRutaTienda(pedido).then(function(ruta){
-          pedido.ruta = ruta;
+      getTiendaCercana(pedido).then(function(tienda) {
+          pedido.tiendaId = tienda._id;
+          pedido.latitud = tienda.direccion.latitud;
+          pedido.longitud = tienda.direccion.longitud;
           return pedido;
-        },function(err){
+        })
+        .then(function(pedido) {
+          return getRutaTienda(pedido).then(function(ruta) {
+            pedido.ruta = ruta;
+            return pedido;
+          }, function(err) {
+            res.send({
+              error: true,
+              message: "No se pudo obtener la ruta"
+            });
+            return;;
+          });
+        })
+        .then(function(pedido) {
+          pedido.estado = "Confirmado";
+          pedido.save();
+          return res.json(pedido);
+        }, function(err) {
           res.send({
             error: true,
-            message: "No se puedo obtener la ruta"
+            message: "No se pudo confirmar el pedido"
           });
-          return;;
+          return;
         });
-      })
-      .then(function(pedido){
-        pedido.estado="Confirmado";
-        pedido.save();
-        return res.json(pedido);
-      },function(err){
-        res.send({
-          error: true,
-          message: "No se pudo confirmar el pedido"
-        });
-        return;
-      });
     });
   },
   //findPedidosActivosTienda: (tokenTienda) / (lista de pedidos),
@@ -308,7 +330,7 @@ module.exports = {
         placa: req.session.user.placa
       }
       pedido.estado = 'En camino';
-      pedido.coEst = 5;
+      pedido.coEst = 50;
       pedido.save();
       return res.json(pedido);
     });
@@ -369,7 +391,7 @@ module.exports = {
       return res.json(pedido);
     });
   },
-  // actualizarEstadoPedidoMotorizado: (tokenMotorizado, idPedido, coEst, estado, ubicacion) / (pedido)
+  // actualizarEstadoPedidoMotorizado: (tokenMotorizado, idPedido, coEst, estado) / (pedido)
   actualizarEstadoPedidoMotorizado: function(req, res) {
     Pedido.findById(req.body.idPedido, function(err, pedido) {
       if (err) {
@@ -390,7 +412,42 @@ module.exports = {
       }
       pedido.estado = req.body.estado;
       pedido.coEst = req.body.coEst;
-      //actualizar ubicacion
+      pedido.save();
+      return res.json(pedido);
+    });
+  },
+
+  //actualizar ubicacion: (tokenMotorizado, idPedido, latitud, longitud) / (pedido)
+  actualizarUbicacion: function(req, res) {
+    Pedido.findById(req.body.idPedido, function(err, pedido) {
+      if (err) {
+        console.log('error en findById: ', err);
+        res.send({
+          error: true,
+          message: 'Oops! Ocurrió un error'
+        });
+        return;
+      }
+      if (!pedido) {
+        console.log('Incorrect');
+        res.send({
+          error: true,
+          message: 'Pedido no encontrado'
+        });
+        return;
+      }
+
+      var distance = Distance.getDistance(pedido.direccion.latitud, pedido.direccion.longitud, req.body.latitud, req.body.longitud);
+      if (distance <= 5 && pedido.coEst !== 51) {
+        pedido.estado = "Llegando";
+        pedido.coEst = 51;
+      } else if (distance < 1 && pedido.coEst !== 52) {
+        pedido.estado = "Su pizza ha llegado";
+        pedido.coEst = 52;
+      }
+
+      pedido.latitud = req.body.latitud;
+      pedido.longitud = req.body.longitud;
       pedido.save();
       return res.json(pedido);
     });

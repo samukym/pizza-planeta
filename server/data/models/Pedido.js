@@ -16,7 +16,7 @@ module.exports.init = function() {
       ingredientes: [{
         nombre: String,
         codigo: Number
-      }] 
+      }]
     }],
     precioSubtotal: Number,
     precioIgv: Number,
@@ -51,11 +51,11 @@ module.exports.init = function() {
     codReciboVisa: String,
     estado: {
       type: String,
-      enum: ['Sin confirmar', 'Confirmado', 'Preparando', 'En el horno', 'En camino', 'Entregado', 'Cancelado']
+      enum: ['Sin confirmar', 'Confirmado', 'Preparando', 'En el horno', 'Por salir', 'En camino', 'Llegando', 'Su pizza ha llegado', 'Entregado', 'Cancelado']
     },
     coEst: {
       type: Number,
-      enum: [0, 10, 11, 12, 13, 20, 30]
+      enum: [0, 10, 20, 21, 22, 50, 51, 52, 70, 90]
     },
     ruta: {
       tiempo: Number,
