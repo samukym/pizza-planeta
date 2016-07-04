@@ -18,6 +18,7 @@ module.exports = function(app) {
 
   app.post('/findPedidosActivosTienda', middleware.validTokenTienda, controllers.pedido.findPedidosActivosTienda);
   app.post('/actualizarEstadoPedidoTienda', middleware.validTokenTienda, controllers.pedido.actualizarEstadoPedidoTienda);
+  app.get('/getQrCode/:pedidoId', controllers.pedido.getQrCode);
 
   app.post('/asignarMotorizado', middleware.validTokenMotorizado, controllers.pedido.asignarMotorizado);
   app.post('/findPedidoAsignadoMotorizado', middleware.validTokenMotorizado, controllers.pedido.findPedidoAsignadoMotorizado);

@@ -1,7 +1,7 @@
 var controllers = require('../controllers');
 
-module.exports = function(app) {
-  var io = require('socket.io')(app);
+module.exports = function(server) {
+  var io = require('socket.io')(server);
 
   io.on('connection', function(socket) {
     //TODO: Probar si funciona la conexión con el cliente iOs

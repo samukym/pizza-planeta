@@ -1,15 +1,12 @@
 /*jshint node: true */
-"use strict";
+"use strict()";
 
 var Tienda = require('mongoose').model('Tienda'),
   Pedido = require('mongoose').model('Pedido'),
   Pizza = require('mongoose').model('Pizza'),
   Google = require('../services/googleService'),
-  Distance = require('../services/distanceService');
-
-var app = require('../../server'),
-  io = require('socket.io')(app);
-
+  Distance = require('../services/distanceService'),
+  qr = require('qr-image');
 
 function getTiendaCercana(pedido) {
   return new Promise(function(res, rej) {
@@ -390,6 +387,13 @@ module.exports = {
       pedido.save();
       return res.json(pedido);
     });
+  },
+  getQrCode: function(req, res) {
+    var code = qr.image(req.params.pedidoId, {
+      type: 'png'
+    });
+    res.type('png');
+    code.pipe(res);
   },
   // actualizarEstadoPedidoMotorizado: (tokenMotorizado, idPedido, coEst, estado) / (pedido)
   actualizarEstadoPedidoMotorizado: function(req, res) {
