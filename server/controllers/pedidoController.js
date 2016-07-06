@@ -93,7 +93,30 @@ module.exports = {
         });
         return;
       }
-
+      return res.json(pedido);
+    });
+  },
+  //findPedidoActivo: (tokenUsuario) / (pedido activo) || pedido tal que 10 <= coEstado < 70
+  findPedidoActivo: function(req, res){
+    Pedido.findOne({
+      usuarioId: req.session.user._id,
+      coEst: { $gte: 10, $lt: 70}
+    }).exec(function(err, pedido) {
+      if (err) {
+        console.log('error en find: ', err);
+        res.send({
+          error: true,
+          message: 'Oops! Ocurrió un error'
+        });
+        return;
+      }
+      if (!pedido) {
+        res.send({
+          error: true,
+          message: 'No hay ningún pedido activo'
+        });
+        return;
+      }
       return res.json(pedido);
     });
   },
@@ -265,6 +288,7 @@ module.exports = {
         })
         .then(function(pedido) {
           pedido.estado = "Confirmado";
+          pedido.coEst = 10;
           pedido.save();
           return res.json(pedido);
         }, function(err) {
