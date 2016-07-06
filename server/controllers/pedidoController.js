@@ -113,7 +113,7 @@ module.exports = {
       if (!pedido) {
         res.send({
           error: true,
-          message: 'No hay ningún pedido activo'
+          message: 'No hay ningún pedido registrado'
         });
         return;
       }

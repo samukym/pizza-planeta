@@ -3,7 +3,7 @@ var controllers = require('../controllers');
 
 module.exports = function(server) {
   var io = require('socket.io')(server);
-  let idPedido=0;
+  var idPedido;
   io.of('/actualizarPedido')
   .on('connection', function(socket) {
     console.log("Conexion entrante actualizarPedido..");
@@ -26,6 +26,6 @@ module.exports = function(server) {
 
   io.of('/actualizarUbicacion')
   .on('connection', function(socket) {
-      
+
   });
 }

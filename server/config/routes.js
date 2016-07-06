@@ -12,6 +12,7 @@ module.exports = function(app) {
 
   app.post('/pedidosUsuario', middleware.validTokenUsuario, controllers.pedido.findPedidosUsuario);
   app.post('/carritoUsuario', middleware.validTokenUsuario, controllers.pedido.findCarrito);
+  app.post('/pedidoActivo', middleware.validTokenUsuario, controllers.pedido.findPedidoActivo);
   app.post('/agregarPizzaCarrito', middleware.validTokenUsuario, middleware.findPizza, controllers.pedido.agregarPizzaCarrito);
   app.post('/quitarPizzaCarrito', middleware.validTokenUsuario, controllers.pedido.quitarPizzaCarrito);
   app.post('/confirmarCarrito', middleware.validTokenUsuario, controllers.pedido.confirmarCarrito);
