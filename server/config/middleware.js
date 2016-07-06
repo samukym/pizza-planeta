@@ -3,12 +3,14 @@ Usuario = require('mongoose').model('Usuario'),
 Motorizado = require('mongoose').model('Motorizado'),
 Tienda = require('mongoose').model('Tienda'),
 Pizza = require('mongoose').model('Pizza'),
-app = require('../../server');
+app = require('../../server'),
+usuariolanata = require('../controllers/usuarioController');
 
 module.exports = {
   validTokenUsuario: function(req, res, next) {
     // obtener token por post
     var token = req.body.token;
+
     // console.log('token',token);
     if (token) {
       jwt.verify(token, app.get('superSecret'), function(err, decoded) {
@@ -19,7 +21,7 @@ module.exports = {
         });
           return;
         }
-          if (req.session.token === token) {
+          if (req.session.token === token || usuariolanata.curToken == token) {
             if (decoded._doc.tipo === Usuario.getTipo()) {
               req.session.user = decoded._doc;
               next();

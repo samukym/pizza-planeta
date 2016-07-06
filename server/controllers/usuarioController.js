@@ -2,9 +2,12 @@ var jwt = require('jsonwebtoken'),
   Usuario = require('mongoose').model('Usuario'),
   app = require('../../server');
 
+var curTokenglob = null;
+
 module.exports = {
   //login: (email, password) / (usuario, tokenUsuario)
   //funciona
+  curToken: curTokenglob,
   login: function(req, res) {
     Usuario.findByEmail(req.body.email, function(err, usuario) {
       if (err) {
@@ -32,6 +35,7 @@ module.exports = {
             algorithms: ['RS256']
           });
           req.session.token = token;
+          curToken = token;
           console.log('LoggedIn');
           console.log('session', req.session);
           return res.json({
@@ -75,6 +79,7 @@ module.exports = {
         algorithms: ['RS256']
       });
       req.session.token = token;
+      curToken = token;
       console.log('Usuario insertado', usuario);
       return res.json({
         usuario: usuario,
