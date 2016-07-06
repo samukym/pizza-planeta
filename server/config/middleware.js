@@ -21,7 +21,7 @@ module.exports = {
         });
           return;
         }
-          if (req.session.token === token || usuariolanata.curToken == token) {
+          if (req.session.token === token || usuariolanata.curToken() == token) {
             if (decoded._doc.tipo === Usuario.getTipo()) {
               req.session.user = decoded._doc;
               next();

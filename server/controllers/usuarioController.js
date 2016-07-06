@@ -7,7 +7,9 @@ var curTokenglob = null;
 module.exports = {
   //login: (email, password) / (usuario, tokenUsuario)
   //funciona
-  curToken: curTokenglob,
+  curToken: function(){
+    return curTokenglob;
+  },
   login: function(req, res) {
     Usuario.findByEmail(req.body.email, function(err, usuario) {
       if (err) {
@@ -35,7 +37,7 @@ module.exports = {
             algorithms: ['RS256']
           });
           req.session.token = token;
-          curToken = token;
+          curTokenglob = token;
           console.log('LoggedIn');
           console.log('session', req.session);
           return res.json({
@@ -79,7 +81,7 @@ module.exports = {
         algorithms: ['RS256']
       });
       req.session.token = token;
-      curToken = token;
+      curTokenglob = token;
       console.log('Usuario insertado', usuario);
       return res.json({
         usuario: usuario,
