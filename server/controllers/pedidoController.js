@@ -385,6 +385,7 @@ module.exports = {
       pedido.estado = req.body.estado;
       pedido.coEst = req.body.coEst;
       pedido.save();
+      
       return res.json(pedido);
     });
   },

@@ -1,20 +1,20 @@
 var controllers = require('../controllers');
 
+
 module.exports = function(server) {
   var io = require('socket.io')(server);
-
-  io.on('connection', function(socket) {
-    //TODO: Probar si funciona la conexión con el cliente iOs
-    console.log('someone connected');
-    socket.emit('mensajito', {
-      mensaje: 'holi'
+  let idPedido=0;
+  io.of('/actualizarPedido')
+  .on('connection', function(socket) {
+    console.log("Conexion entrante actualizarPedido..");
+    socket.on('saludo', function(data) {
+      idPedido = data.pedido.id;
+      if(idPedido == 'asdf'){
+        socket.join(data.pedido.id);
+      }
     });
-    socket.on('otro evento', function(data) {
-      console.log(data);
-    });
-
     //TODO
-    socket.on('actualizar ubicacion', function(data) {
+    socket.on('actualizar_pedido', function(data) {
       console.log(data);
 
     });
@@ -24,4 +24,8 @@ module.exports = function(server) {
     });
   });
 
+  io.of('/actualizarUbicacion')
+  .on('connection', function(socket) {
+      
+  });
 }

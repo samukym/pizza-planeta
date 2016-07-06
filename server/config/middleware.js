@@ -25,12 +25,14 @@ module.exports = {
               error: true,
               message: 'No tiene permiso para realizar esta acción'
             });
+            return;
           }
         } else {
           res.send({
             error: true,
             message: 'Token no valido o no existe'
           });
+          return;
         }
       });
     } else {
@@ -60,12 +62,14 @@ module.exports = {
               error: true,
               message: 'No tiene permiso para realizar esta acción'
             });
+            return;
           }
         } else {
           res.send({
             error: true,
             message: 'Token no valido o no existe'
           });
+          return;
         }
       });
     } else {
@@ -91,16 +95,18 @@ module.exports = {
             req.session.user = decoded._doc;
             next();
           } else {
-            res.send({
+            return res.send({
               error: true,
               message: 'No tiene permiso para realizar esta acción'
             });
+
           }
         } else {
           res.send({
             error: true,
             message: 'Token no valido o no existe'
           });
+          return;
         }
       });
     } else {
