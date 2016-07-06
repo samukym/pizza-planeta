@@ -6,9 +6,9 @@
     .module('app')
     .controller('LoginController', LoginController);
 
-  LoginController.$inject = ['$location', 'AuthenticationService', 'FlashService', 'UserService'];
+  LoginController.$inject = ['$location', 'AuthenticationService', 'FlashService', 'UserService', '$window'];
 
-  function LoginController($location, AuthenticationService, FlashService, UserService) {
+  function LoginController($location, AuthenticationService, FlashService, UserService, $window) {
     var vm = this;
 
     vm.login = login;
@@ -36,7 +36,7 @@
       AuthenticationService.Login(request, function (response){
                   if(response.success){
                     FlashService.Success(response.message, true);
-                    $location.path('/home');
+                    $window.location.href ='/home/dash.html';
                   }
                   else {
                     FlashService.Error(response.message);

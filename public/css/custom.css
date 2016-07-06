@@ -881,10 +881,10 @@ legend {
   height: 280px;
 }
 
-/** Contacts **/
+/** Contacts
 .profile_details:nth-child(3n){
     clear:both;
-}
+}**/
 
 .profile_details .profile_view {
   display: inline-block;
