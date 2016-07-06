@@ -260,7 +260,7 @@ module.exports = {
               error: true,
               message: "No se pudo obtener la ruta"
             });
-            return;;
+            return;
           });
         })
         .then(function(pedido) {
@@ -325,7 +325,7 @@ module.exports = {
         email: req.session.user.email,
         dni: req.session.user.dni,
         placa: req.session.user.placa
-      }
+      };
       pedido.estado = 'En camino';
       pedido.coEst = 50;
       pedido.save();
@@ -341,7 +341,7 @@ module.exports = {
       email: req.session.user.email,
       dni: req.session.user.dni,
       placa: req.session.user.placa
-    }
+    };
     Pedido.findOne({
       motorizado: motorizado
     }).exec(function(err, pedido) {
@@ -385,7 +385,7 @@ module.exports = {
       pedido.estado = req.body.estado;
       pedido.coEst = req.body.coEst;
       pedido.save();
-      
+
       return res.json(pedido);
     });
   },
