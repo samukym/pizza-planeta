@@ -24,6 +24,7 @@ module.exports = {
           if (req.session.token === token || usuariolanata.curToken() == token) {
             if (decoded._doc.tipo === Usuario.getTipo()) {
               req.session.user = decoded._doc;
+              return res.json(req.session.user);
               next();
             } else {
               res.send({

@@ -139,6 +139,10 @@ module.exports = {
       if (!pedido) {
         pedido = new Pedido({
           usuarioId: req.session.user._id,
+          datosUsuario: {
+            nombre: req.session.nombre,
+            telefono: req.session.telefono,
+          },
           estado: "Sin confirmar",
           coEst: 0
         });
