@@ -275,11 +275,12 @@ module.exports = {
           return pedido;
         })
         .then(function(pedido) {
-          return getRutaTienda(pedido).then(function(ruta) {
-            pedido.ruta = ruta;
-            return pedido;
-          }, function(err) {
-            res.send({
+          return getRutaTienda(pedido)
+            .then(function(ruta) {
+              pedido.ruta = ruta;
+              return pedido;
+            }, function(err) {
+              res.send({
               error: true,
               message: "No se pudo obtener la ruta"
             });
@@ -290,6 +291,7 @@ module.exports = {
           pedido.estado = "Confirmado";
           pedido.coEst = 10;
           pedido.save();
+          
           return res.json(pedido);
         }, function(err) {
           res.send({

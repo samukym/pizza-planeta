@@ -32,6 +32,7 @@ module.exports = {
           });
           req.session.token = token;
           console.log('LoggedIn');
+          //socket login
           return res.json({
             success: true,
             message: 'Sesión iniciada (:',
