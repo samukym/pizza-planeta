@@ -16,31 +16,30 @@ module.exports = {
       jwt.verify(token, app.get('superSecret'), function(err, decoded) {
         if (err) {
           res.send({
-          error: true,
-          message: 'Token no valido o no existe'
-        });
+            error: true,
+            message: 'Token no valido o no existe'
+          });
           return;
         }
-          if (req.session.token === token || usuariolanata.curToken() == token) {
-            if (decoded._doc.tipo === Usuario.getTipo()) {
-              req.session.user = decoded._doc;
-              return res.json(req.session.user);
-              next();
-            } else {
-              res.send({
-                error: true,
-                message: 'No tiene permiso para realizar esta acción'
-              });
-              return;
-            }
+        if (req.session.token === token || usuariolanata.curToken() == token) {
+          if (decoded._doc.tipo === Usuario.getTipo()) {
+            req.session.user = decoded._doc;
+            next();
           } else {
             res.send({
               error: true,
-              message: 'Token no valido o no existe'
+              message: 'No tiene permiso para realizar esta acción'
             });
             return;
           }
-        });
+        } else {
+          res.send({
+            error: true,
+            message: 'Token no valido o no existe'
+          });
+          return;
+        }
+      });
     } else {
       res.send({
         error: true,

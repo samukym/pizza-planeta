@@ -93,7 +93,7 @@ module.exports = {
   //agregarDireccion: (nombre, calle, distrito, ciudad, latitud, longitud) / (resp)
   //funciona
   agregarDireccion: function(req, res) {
-    Usuario.update( {_id : req.session.user._id}, 
+   Usuario.update( {_id : req.session.user._id}, 
       {$push: {direcciones: { 
         nombre : req.body.nombre,         
         calle : req.body.calle,         
@@ -106,6 +106,11 @@ module.exports = {
           console.error("error insertando direccion");
           return;
         }
+        if(!resp){
+          console.error("Usuario "+req.session.user._id+"no exste" );
+          return;
+        }
+        console.log(resp);
         return res.json({
           respuesta: resp
         });
@@ -126,7 +131,7 @@ module.exports = {
           message: 'Oops! Ocurrió un error'
         });
       }
-      sails.log('Hay %d usuarios:', usuarios.length, usuarios);
+      console.log('Hay %d usuarios:', usuarios.length, usuarios);
       return res.json(usuarios);
     });
   }
