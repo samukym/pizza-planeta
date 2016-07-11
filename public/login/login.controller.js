@@ -36,6 +36,12 @@
       AuthenticationService.Login(request, function (response){
                   if(response.success){
                     FlashService.Success(response.message, true);
+                    var e = document.getElementById("username");
+                    if (e.selectedIndex == -1){
+                      return;
+                    }else{
+                      sessionStorage.nombre = e.options[e.selectedIndex].text;
+                    }
                     $window.location.href ='/home/dash.html';
                   }
                   else {

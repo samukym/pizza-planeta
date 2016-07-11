@@ -20,8 +20,9 @@
           UserService.ValidLogin(request)
             .then(function(response) {
               if (response.success) {
-                console.log('funciono el login (:');
+                sessionStorage.token = response.token;
                 console.log(response.token);
+                console.log('Session: ' + sessionStorage.token);
                 $rootScope.globals = {
                     currentUser: {
                         username: response.tienda._id,
@@ -29,7 +30,8 @@
                     }
                 };
                 $cookieStore.put('globals', $rootScope.globals);
-                resp = { success: true, message: 'Sesión iniciada papu :)' };
+
+                resp = { success: true, message: 'Sesión iniciada. Redirigiendo, espere por favor...' };
 
                 //FlashService.Success('Registration successful', true);
                 //$location.path('/home');
