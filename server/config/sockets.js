@@ -1,4 +1,4 @@
-var routes = require('../utils/routesAndDistance');
+var udateRoute = require('../utils/getRoute');
 
 var io = null;
 
@@ -34,7 +34,7 @@ module.exports = {
         socket.on('actualizarUbicacion', function(data) {
           console.log(data);
           //data.lat, data.lon
-          routes.updateRutaPedido(currentPedidoId, data.latitud, data.longitud,
+          udateRoute(currentPedidoId, data.latitud, data.longitud,
             function(pedido) {
               socket.emit('pedidoActualizado', pedido);
             });

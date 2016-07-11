@@ -32,7 +32,7 @@ module.exports = {
         console.log('comparePassword: ', isMatch);
         if (isMatch) {
           // Si es correcta generamos el token
-          var token = jwt.sign(usuario, app.get('superSecret'), {
+          var token = jwt.sign(usuario._id, app.get('superSecret'), {
             expiresIn: 86400, // tiempo de expiración
             algorithms: ['RS256']
           });
@@ -102,20 +102,20 @@ module.exports = {
         });
       });
     });
-    
-    
+
+
   },
 
   //agregarDireccion: (nombre, calle, distrito, ciudad, latitud, longitud) / (resp)
   //funciona
   agregarDireccion: function(req, res) {
-   Usuario.update( {_id : req.session.user._id}, 
-    {$push: {direcciones: { 
-      nombre : req.body.nombre,         
-      calle : req.body.calle,         
-      distrito : req.body.distrito,         
-      ciudad : req.body.ciudad,         
-      latitud : req.body.latitud,         
+   Usuario.update( {_id : req.session.user._id},
+    {$push: {direcciones: {
+      nombre : req.body.nombre,
+      calle : req.body.calle,
+      distrito : req.body.distrito,
+      ciudad : req.body.ciudad,
+      latitud : req.body.latitud,
       longitud : req.body.longitud }}
     }, function(err, resp){
       if(err){

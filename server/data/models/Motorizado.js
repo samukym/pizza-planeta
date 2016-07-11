@@ -17,7 +17,11 @@ module.exports.init = function() {
     tipo: {
       type: Number,
       default: 2
-    }
+    },
+    tokens: [{
+      value: String,
+      fecha: Date
+    }]
   });
 
   motorizadoSchema.virtual('password').set(function(password) {
@@ -31,6 +35,16 @@ module.exports.init = function() {
   motorizadoSchema.method({
     comparePassword: function(candidatePassword, cb) {
       cb(null, passwordHash.verify(candidatePassword, this.hashed_password));
+    },
+    validateToken: function(checkToken, cb) {
+      var existe = false;
+      for (var i = 0; i < this.tokens.length; i++) {
+        if (this.tokens[i].value === checkToken) {
+          existe = true;
+          break;
+        }
+      }
+      cb(existe);
     }
   });
 
@@ -41,6 +55,15 @@ module.exports.init = function() {
     findByUsername: function(username, callback) {
       return this.findOne({
         username: username
+      }, callback);
+    },
+    findByToken: function(token, callback) {
+      return this.findOne({
+        tokens: {
+          $elemMatch: {
+            value: token
+          }
+        }
       }, callback);
     }
   });

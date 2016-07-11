@@ -5,7 +5,7 @@ var Tienda = require('mongoose').model('Tienda'),
 Pedido = require('mongoose').model('Pedido'),
 Pizza = require('mongoose').model('Pizza'),
 Google = require('../services/googleService'),
-Distance = require('../utils/routesAndDistance'),
+getDistance = require('../utils/distance'),
 Usuario = require('mongoose').model('Usuario'),
 qr = require('qr-image'),
 async = require('async');
@@ -293,7 +293,7 @@ module.exports = {
       pedido.coEst = 10;
 
       var direccion = {};
-      for (var i = 0; i < req.session.user.direcciones.length; i++) {
+      for (i = 0; i < req.session.user.direcciones.length; i++) {
         if (req.session.user.direcciones[i]._id === req.body.idDireccion) {
           direccion = req.session.user.direcciones[i];
           break;
@@ -532,7 +532,7 @@ module.exports = {
         return;
       }
 
-      var distance = Distance.getDistance(pedido.direccion.latitud, pedido.direccion.longitud, req.body.latitud, req.body.longitud);
+      var distance = getDistance(pedido.direccion.latitud, pedido.direccion.longitud, req.body.latitud, req.body.longitud);
       if (distance <= 5 && pedido.coEst !== 51) {
         pedido.estado = "Llegando";
         pedido.coEst = 51;
