@@ -24,28 +24,6 @@ function getTiendaCercana(pedido) {
       });
   });
 }
-/*function pedidosConUsuario(pedidos, pedidosConUsuario){
-  return new Promise(function(res, rej){
-    pedidos.forEach(function(pedido){
-      console.log(pedido.precioTotal);
-      Usuario.findOne({
-        _id: pedido.usuarioId
-      }, function(error, usuario){
-        if(!usuario){
-          rej(error)
-        }
-        pedido.datosUsuario = {
-          nombre: usuario.nombre,
-          telefono: usuario.telefono
-        }
-        pedidosConUsuario.push(pedido);
-      });
-      console.log(pedido);
-    });
-    console.log("1");
-    res(pedidosConUsuario);
-  });
-}*/
 
 function getRutaTienda(pedido) {
   return new Promise(function(res, rej) {
@@ -313,6 +291,7 @@ module.exports = {
           pedido.ruta = ruta;
           return pedido;
         }, function(err) {
+
           res.send({
             error: true,
             message: "No se pudo obtener la ruta"
@@ -358,26 +337,6 @@ module.exports = {
         });
         return;
       }
-      var i = 0;
-      async.forEach(pedidos,function(pedido, cb){
-        console.log(pedido.precioTotal);
-        Usuario.findOne({
-          _id: pedido.usuarioId
-        }, function(error, usuario){
-          pedido.datosUsuario = {
-            nombre: usuario.nombre,
-            telefono: usuario.telefono
-          };
-          pedidosConUsuarioArray[i]=pedido;
-          i++;
-          cb();
-        });
-
-      }, function(err){
-        if(!err){
-          return res.json(pedidosConUsuarioArray);
-        }
-      });
     });
   },
   // asignarMotorizado: (tokenMotorizado, idPedido) / (pedido)

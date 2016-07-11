@@ -1,4 +1,4 @@
-var udateRoute = require('../utils/getRoute');
+var updateRoute = require('../utils/getRoute');
 
 var io = null;
 
@@ -9,10 +9,6 @@ module.exports = {
   },
   init: function(server) {
     io = require('socket.io')(server);
-
-    var enviarPedidoActualizadoSocket = function(pedido) {
-      io.toRoom(pedido._id).emit('pedidoActualizado', pedido);
-    };
 
     io.of('/socketMotorizado')
       .on('connection', function(socket) {
@@ -34,7 +30,7 @@ module.exports = {
         socket.on('actualizarUbicacion', function(data) {
           console.log(data);
           //data.lat, data.lon
-          udateRoute(currentPedidoId, data.latitud, data.longitud,
+          updateRoute(currentPedidoId, data.latitud, data.longitud,
             function(pedido) {
               socket.emit('pedidoActualizado', pedido);
             });
