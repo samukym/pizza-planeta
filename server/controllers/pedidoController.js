@@ -2,11 +2,13 @@
 "use strict()";
 
 var Tienda = require('mongoose').model('Tienda'),
-  Pedido = require('mongoose').model('Pedido'),
-  Pizza = require('mongoose').model('Pizza'),
-  Google = require('../services/googleService'),
-  Distance = require('../services/distanceService'),
-  qr = require('qr-image');
+Pedido = require('mongoose').model('Pedido'),
+Pizza = require('mongoose').model('Pizza'),
+Google = require('../services/googleService'),
+Distance = require('../services/distanceService'),
+Usuario = require('mongoose').model('Usuario'),
+qr = require('qr-image');
+async = require('async');
 
 function getTiendaCercana(pedido) {
   return new Promise(function(res, rej) {
@@ -20,6 +22,28 @@ function getTiendaCercana(pedido) {
       });
   });
 }
+/*function pedidosConUsuario(pedidos, pedidosConUsuario){
+  return new Promise(function(res, rej){
+    pedidos.forEach(function(pedido){
+      console.log(pedido.precioTotal);
+      Usuario.findOne({
+        _id: pedido.usuarioId
+      }, function(error, usuario){
+        if(!usuario){
+          rej(error)
+        }
+        pedido.datosUsuario = {
+          nombre: usuario.nombre,
+          telefono: usuario.telefono
+        }
+        pedidosConUsuario.push(pedido);
+      });
+      console.log(pedido);
+    });
+    console.log("1");
+    res(pedidosConUsuario);
+  });
+}*/
 
 function getRutaTienda(pedido) {
   return new Promise(function(res, rej) {
@@ -196,28 +220,28 @@ module.exports = {
         return;
       } else {
         Pedido.update({
-            _id: pedido._id
-          }, {
-            $pull: {
-              pizzas: {
-                _id: req.body.idPizzaCarrito
-              }
+          _id: pedido._id
+        }, {
+          $pull: {
+            pizzas: {
+              _id: req.body.idPizzaCarrito
             }
-          },
-          function(err) {
-            if (err) {
-              res.send({
-                error: true,
-                message: "Pizza no existe en el carrito"
-              });
-              return;
-            } else {
-              res.send({
-                message: "OK"
-              });
-              return;
-            }
-          });
+          }
+        },
+        function(err) {
+          if (err) {
+            res.send({
+              error: true,
+              message: "Pizza no existe en el carrito"
+            });
+            return;
+          } else {
+            res.send({
+              message: "OK"
+            });
+            return;
+          }
+        });
       }
     });
   },
@@ -273,42 +297,42 @@ module.exports = {
       pedido.direccion = direccion;
 
       getTiendaCercana(pedido).then(function(tienda) {
-          pedido.tiendaId = tienda._id;
-          pedido.latitud = tienda.direccion.latitud;
-          pedido.longitud = tienda.direccion.longitud;
+        pedido.tiendaId = tienda._id;
+        pedido.latitud = tienda.direccion.latitud;
+        pedido.longitud = tienda.direccion.longitud;
+        return pedido;
+      })
+      .then(function(pedido) {
+        return getRutaTienda(pedido)
+        .then(function(ruta) {
+          pedido.ruta = ruta;
           return pedido;
-        })
-        .then(function(pedido) {
-          return getRutaTienda(pedido)
-            .then(function(ruta) {
-              pedido.ruta = ruta;
-              return pedido;
-            }, function(err) {
-              res.send({
-              error: true,
-              message: "No se pudo obtener la ruta"
-            });
-            return;
-          });
-        })
-        .then(function(pedido) {
-          pedido.estado = "Confirmado";
-          pedido.coEst = 10;
-          pedido.save();
-          
-          return res.json(pedido);
         }, function(err) {
           res.send({
             error: true,
-            message: "No se pudo confirmar el pedido"
+            message: "No se pudo obtener la ruta"
           });
           return;
         });
+      })
+      .then(function(pedido) {
+        pedido.estado = "Confirmado";
+        pedido.coEst = 10;
+        pedido.save();
+
+        return res.json(pedido);
+      }, function(err) {
+        res.send({
+          error: true,
+          message: "No se pudo confirmar el pedido"
+        });
+        return;
+      });
     });
   },
   //findPedidosActivosTienda: (tokenTienda) / (lista de pedidos),
   findPedidosActivosTienda: function(req, res) {
-    console.log(req.session.user._id);
+    var pedidosConUsuarioArray=[];
     Pedido.find({
       tiendaId: req.session.user._id
     }).exec(function(err, pedidos) {
@@ -327,8 +351,27 @@ module.exports = {
         });
         return;
       }
-      return res.json(pedidos);
-    });
+      var i = 0;
+      async.forEach(pedidos,function(pedido, cb){
+        console.log(pedido.precioTotal);
+        Usuario.findOne({
+          _id: pedido.usuarioId
+        }, function(error, usuario){
+          pedido.datosUsuario = {
+            nombre: usuario.nombre,
+            telefono: usuario.telefono
+          }
+          pedidosConUsuarioArray[i]=pedido;
+          i++;
+          cb();
+        });
+
+      }, function(err){
+        if(!err){
+          return res.json(pedidosConUsuarioArray);
+        }
+      });
+    })
   },
   // asignarMotorizado: (tokenMotorizado, idPedido) / (pedido)
   asignarMotorizado: function(req, res) {
