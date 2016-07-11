@@ -41,6 +41,7 @@
                       return;
                     }else{
                       sessionStorage.nombre = e.options[e.selectedIndex].text;
+                      sessionStorage.tiendaId = vm.username;
                     }
                     $window.location.href ='/home/dash.html';
                   }
