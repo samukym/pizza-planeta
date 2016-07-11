@@ -1,6 +1,6 @@
 var jwt = require('jsonwebtoken'),
-  Usuario = require('mongoose').model('Usuario'),
-  app = require('../../server');
+Usuario = require('mongoose').model('Usuario'),
+app = require('../../server');
 
 var curTokenglob = null;
 
@@ -62,60 +62,76 @@ module.exports = {
   //crearUsuario: (email, password, nombre, dni, telefono) / (usuario, tokenUsuario)
   //funciona
   crearUsuario: function(req, res) {
-    var usuario = new Usuario({
-      email: req.param('email'),
-      password: req.param('password'),
-      nombre: req.param('nombre'),
-      dni: req.param('dni'),
-      telefono: req.param('telefono')
-    });
-    usuario.save(function(err, usuario) {
-      if (err) {
-        res.send({
-          error: true,
-          message: 'Oops! Ocurrió un error'
-        });
+    Usuario.findOne({email: req.body.email}, function(error, usuario){
+      if(error){
+        console.log("error buscando usuario para crear");
+        return;
       }
-      var token = jwt.sign(usuario, app.get('superSecret'), {
+      if(usuario){
+        res.send({
+          error:true,
+          message: 'El usuario '+usuario.email+' ya existe'
+        });
+        return;
+      }
+      var usuario = new Usuario({
+        email: req.param('email'),
+        password: req.param('password'),
+        nombre: req.param('nombre'),
+        dni: req.param('dni'),
+        telefono: req.param('telefono')
+      });
+      usuario.save(function(err, usuario) {
+        if (err) {
+          res.send({
+            error: true,
+            message: 'Oops! Ocurrió un error'
+          });
+          return;
+        }
+        var token = jwt.sign(usuario, app.get('superSecret'), {
         expiresIn: 86400, // tiempo de expiración, checar documentacion
         algorithms: ['RS256']
       });
-      req.session.token = token;
-      curTokenglob = token;
-      console.log('Usuario insertado', usuario);
-      return res.json({
-        usuario: usuario,
-        token: token
+        req.session.token = token;
+        curTokenglob = token;
+        console.log('Usuario insertado', usuario);
+        return res.json({
+          usuario: usuario,
+          token: token
+        });
       });
     });
+    
+    
   },
 
   //agregarDireccion: (nombre, calle, distrito, ciudad, latitud, longitud) / (resp)
   //funciona
   agregarDireccion: function(req, res) {
    Usuario.update( {_id : req.session.user._id}, 
-      {$push: {direcciones: { 
-        nombre : req.body.nombre,         
-        calle : req.body.calle,         
-        distrito : req.body.distrito,         
-        ciudad : req.body.ciudad,         
-        latitud : req.body.latitud,         
-        longitud : req.body.longitud }}
-      }, function(err, resp){
-        if(err){
-          console.error("error insertando direccion");
-          return;
-        }
-        if(!resp){
-          console.error("Usuario "+req.session.user._id+"no exste" );
-          return;
-        }
-        console.log(resp);
-        return res.json({
-          respuesta: resp
-        });
+    {$push: {direcciones: { 
+      nombre : req.body.nombre,         
+      calle : req.body.calle,         
+      distrito : req.body.distrito,         
+      ciudad : req.body.ciudad,         
+      latitud : req.body.latitud,         
+      longitud : req.body.longitud }}
+    }, function(err, resp){
+      if(err){
+        console.error("error insertando direccion");
+        return;
+      }
+      if(!resp){
+        console.error("Usuario "+req.session.user._id+"no exste" );
+        return;
+      }
+      console.log(resp);
+      return res.json({
+        respuesta: resp
       });
-  },
+    });
+ },
 
   //funciona
   findUsuario: function(req, res) {

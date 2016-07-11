@@ -27,10 +27,6 @@ module.exports.init = function() {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Usuario'
     },
-    datosUsuario: {
-      nombre: String,
-      telefono: String,
-    },
     direccion: {
       nombre: String,
       calle: String,
