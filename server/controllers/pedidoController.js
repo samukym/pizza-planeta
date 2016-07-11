@@ -28,7 +28,7 @@ function getTiendaCercana(pedido) {
 function getRutaTienda(pedido) {
   return new Promise(function(res, rej) {
     Tienda.findOne({
-      _id: pedido.tiendaId
+      _id: pedido.tienda
     }, function(err, tienda) {
       if (!tienda) {
         rej(Error("no tienda"));
@@ -108,7 +108,7 @@ module.exports = {
     Pedido.findOne({
       usuarioId: req.session.user._id,
       coEst: { $gte: 10, $lt: 70}
-    }).exec(function(err, pedido) {
+  }).populate('usuario').populate('tienda').exec(function(err, pedido) {
       if (err) {
         console.log('error en find: ', err);
         res.send({
@@ -280,7 +280,7 @@ module.exports = {
       pedido.direccion = direccion;
 
       getTiendaCercana(pedido).then(function(tienda) {
-        pedido.tiendaId = tienda._id;
+        pedido.tienda = tienda._id;
         pedido.latitud = tienda.direccion.latitud;
         pedido.longitud = tienda.direccion.longitud;
         return pedido;
@@ -321,7 +321,7 @@ module.exports = {
     var pedidosConUsuarioArray=[];
     Pedido.find({
       tiendaId: req.session.user._id
-    }).exec(function(err, pedidos) {
+    }).populate('usuario').populate('tienda').exec(function(err, pedidos) {
       if (err) {
         console.log('error en find: ', err);
         res.send({
@@ -337,11 +337,14 @@ module.exports = {
         });
         return;
       }
+      res.json(pedido);
     });
   },
   // asignarMotorizado: (tokenMotorizado, idPedido) / (pedido)
   asignarMotorizado: function(req, res) {
-    Pedido.findById(req.body.idPedido, function(err, pedido) {
+    Pedido.findOne({
+      pedidoId: req.body.idPedido
+    }).populate('usuario').populate('tienda').exec(function(err, pedido) {
       if (err) {
         console.log('error en findById: ', err);
         res.send({
@@ -386,7 +389,7 @@ module.exports = {
     };
     Pedido.findOne({
       motorizado: motorizado
-    }).exec(function(err, pedido) {
+    }).populate('usuario').populate('tienda').exec(function(err, pedido) {
       if (err) {
         console.log('error en find: ', err);
         res.send({
@@ -407,7 +410,9 @@ module.exports = {
   },
   // actualizarEstadoPedidoTienda: (tokenTienda, idPedido, coEst, estado) / (lista de pedidos),
   actualizarEstadoPedidoTienda: function(req, res) {
-    Pedido.findById(req.body.idPedido, function(err, pedido) {
+    Pedido.findOne({
+      pedidoId: req.body.idPedido
+    }).populate('usuario').populate('tienda').exec(function(err, pedido) {
       if (err) {
         console.log('error en findById: ', err);
         res.send({
@@ -444,7 +449,9 @@ module.exports = {
   },
   // actualizarEstadoPedidoMotorizado: (tokenMotorizado, idPedido, coEst, estado) / (pedido)
   actualizarEstadoPedidoMotorizado: function(req, res) {
-    Pedido.findById(req.body.idPedido, function(err, pedido) {
+    Pedido.findOne({
+      pedidoId: req.body.idPedido
+    }).populate('usuario').populate('tienda').exec(function(err, pedido) {
       if (err) {
         console.log('error en findById: ', err);
         res.send({
@@ -473,7 +480,9 @@ module.exports = {
 
   //actualizar ubicacion: (tokenMotorizado, idPedido, latitud, longitud) / (pedido)
   actualizarUbicacion: function(req, res) {
-    Pedido.findById(req.body.idPedido, function(err, pedido) {
+    Pedido.findOne({
+      pedidoId: req.body.idPedido
+    }).populate('usuario').populate('tienda').exec(function(err, pedido) {
       if (err) {
         console.log('error en findById: ', err);
         res.send({
