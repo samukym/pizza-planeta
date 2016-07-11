@@ -52,28 +52,28 @@ module.exports = {
     console.log('validTokenMotorizado');
     var token = req.body.token;
     if (token) {
-      jwt.verify(token, app.get('superSecret'), function(err, decoded) {
-        if (err) res.send({
+      if (err) {
+        res.send({
           error: true,
           message: 'Token no valido o no existe'
         });
-        console.log('session', req.session);
-        console.log('decoded', decoded._doc);
-        if (req.session.token === token) {
-          if (decoded._doc.tipo === Motorizado.getTipo()) {
-            req.session.user = decoded._doc;
-            next();
-          } else {
-            res.send({
-              error: true,
-              message: 'No tiene permiso para realizar esta acción'
-            });
-            return;
-          }
-        } else {
+        return;
+      }
+      Motorizado.findByToken(token, function(usuario) {
+        if (!usuario) {
           res.send({
             error: true,
             message: 'Token no valido o no existe'
+          });
+          return;
+        }
+        req.session.user = usuario;
+        if (req.session.user.tipo === Motorizado.getTipo()) {
+          next();
+        } else {
+          res.send({
+            error: true,
+            message: 'No tiene permiso para realizar esta acción'
           });
           return;
         }
@@ -94,26 +94,32 @@ module.exports = {
           error: true,
           message: 'Token no valido o no existe'
         });
-        console.log('session', req.session);
-        console.log('decoded', decoded._doc);
-        if (req.session.token === token) {
-          if (decoded._doc.tipo === Tienda.getTipo()) {
-            req.session.user = decoded._doc;
-            next();
-          } else {
-            return res.send({
-              error: true,
-              message: 'No tiene permiso para realizar esta acción'
-            });
-
-          }
-        } else {
+        if (err) {
           res.send({
             error: true,
             message: 'Token no valido o no existe'
           });
           return;
         }
+        Tienda.findByToken(token, function(usuario) {
+          if (!usuario) {
+            res.send({
+              error: true,
+              message: 'Token no valido o no existe'
+            });
+            return;
+          }
+          req.session.user = usuario;
+          if (req.session.user.tipo === Tienda.getTipo()) {
+            next();
+          } else {
+            res.send({
+              error: true,
+              message: 'No tiene permiso para realizar esta acción'
+            });
+            return;
+          }
+        });
       });
     } else {
       res.send({
