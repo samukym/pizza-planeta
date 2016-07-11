@@ -104,7 +104,7 @@ module.exports = {
         tokens: []
       });
 
-      var token = jwt.sign(newUsuario, app.get('superSecret'), {
+      var token = jwt.sign(newUsuario._id, app.get('superSecret'), {
         expiresIn: 86400, // tiempo de expiración, checar documentacion
         algorithms: ['RS256']
       });
