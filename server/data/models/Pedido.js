@@ -23,7 +23,7 @@ module.exports.init = function() {
     precioTotal: Number,
     comentario: String,
     fecha: Date,
-    usuarioId: {
+    usuario: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Usuario'
     },
@@ -35,7 +35,7 @@ module.exports.init = function() {
       latitud: Number,
       longitud: Number
     },
-    tiendaId: {
+    tienda: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Tienda'
     },
