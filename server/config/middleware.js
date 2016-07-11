@@ -3,8 +3,7 @@ var jwt = require('jsonwebtoken'),
   Motorizado = require('mongoose').model('Motorizado'),
   Tienda = require('mongoose').model('Tienda'),
   Pizza = require('mongoose').model('Pizza'),
-  app = require('../../server'),
-  usuariolanata = require('../controllers/usuarioController');
+  app = require('../../server');
 
 module.exports = {
   validTokenUsuario: function(req, res, next) {
