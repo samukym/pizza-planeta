@@ -19,6 +19,10 @@ module.exports.init = function() {
       ciudad: String,
       latitud: Number,
       longitud: Number
+    }],
+    tokens: [{
+      value: String,
+      fecha: Date
     }]
   });
 
@@ -33,6 +37,16 @@ module.exports.init = function() {
   usuarioSchema.method({
     comparePassword: function(candidatePassword, cb) {
       cb(null, passwordHash.verify(candidatePassword, this.hashed_password));
+    },
+    validateToken: function(checkToken, cb){
+      var existe = false;
+      for (var i=0; i<this.tokens.length; i++){
+        if (this.tokens[i].value === checkToken){
+          existe = true;
+          break;
+        }
+      }
+      cb(existe);
     }
   });
 
@@ -43,6 +57,11 @@ module.exports.init = function() {
     findByEmail: function(email, callback) {
       return this.findOne({
         email: email
+      }, callback);
+    },
+    findByToken: function(token, callback) {
+      return this.findOne({
+        tokens: { $elemMatch: { value: token } }
       }, callback);
     }
   });

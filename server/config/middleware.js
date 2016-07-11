@@ -1,10 +1,9 @@
 var jwt = require('jsonwebtoken'),
-Usuario = require('mongoose').model('Usuario'),
-Motorizado = require('mongoose').model('Motorizado'),
-Tienda = require('mongoose').model('Tienda'),
-Pizza = require('mongoose').model('Pizza'),
-app = require('../../server'),
-usuariolanata = require('../controllers/usuarioController');
+  Usuario = require('mongoose').model('Usuario'),
+  Motorizado = require('mongoose').model('Motorizado'),
+  Tienda = require('mongoose').model('Tienda'),
+  Pizza = require('mongoose').model('Pizza'),
+  app = require('../../server');
 
 module.exports = {
   validTokenUsuario: function(req, res, next) {
@@ -21,9 +20,16 @@ module.exports = {
           });
           return;
         }
-        if (req.session.token === token || usuariolanata.curToken() == token) {
-          if (decoded._doc.tipo === Usuario.getTipo()) {
-            req.session.user = decoded._doc;
+        Usuario.findByToken(token, function(usuario) {
+          if (!usuario) {
+            res.send({
+              error: true,
+              message: 'Token no valido o no existe'
+            });
+            return;
+          }
+          req.session.user = usuario;
+          if (req.session.user.tipo === Usuario.getTipo()) {
             next();
           } else {
             res.send({
@@ -32,13 +38,7 @@ module.exports = {
             });
             return;
           }
-        } else {
-          res.send({
-            error: true,
-            message: 'Token no valido o no existe'
-          });
-          return;
-        }
+        });
       });
     } else {
       res.send({
@@ -51,32 +51,32 @@ module.exports = {
     console.log('validTokenMotorizado');
     var token = req.body.token;
     if (token) {
-      jwt.verify(token, app.get('superSecret'), function(err, decoded) {
-        if (err) res.send({
+      if (err) {
+        res.send({
           error: true,
           message: 'Token no valido o no existe'
         });
-          console.log('session', req.session);
-          console.log('decoded', decoded._doc);
-          if (req.session.token === token) {
-            if (decoded._doc.tipo === Motorizado.getTipo()) {
-              req.session.user = decoded._doc;
-              next();
-            } else {
-              res.send({
-                error: true,
-                message: 'No tiene permiso para realizar esta acción'
-              });
-              return;
-            }
-          } else {
-            res.send({
-              error: true,
-              message: 'Token no valido o no existe'
-            });
-            return;
-          }
-        });
+        return;
+      }
+      Motorizado.findByToken(token, function(usuario) {
+        if (!usuario) {
+          res.send({
+            error: true,
+            message: 'Token no valido o no existe'
+          });
+          return;
+        }
+        req.session.user = usuario;
+        if (req.session.user.tipo === Motorizado.getTipo()) {
+          next();
+        } else {
+          res.send({
+            error: true,
+            message: 'No tiene permiso para realizar esta acción'
+          });
+          return;
+        }
+      });
     } else {
       res.send({
         error: true,
@@ -93,27 +93,33 @@ module.exports = {
           error: true,
           message: 'Token no valido o no existe'
         });
-          console.log('session', req.session);
-          console.log('decoded', decoded._doc);
-          if (req.session.token === token) {
-            if (decoded._doc.tipo === Tienda.getTipo()) {
-              req.session.user = decoded._doc;
-              next();
-            } else {
-              return res.send({
-                error: true,
-                message: 'No tiene permiso para realizar esta acción'
-              });
-
-            }
-          } else {
+        if (err) {
+          res.send({
+            error: true,
+            message: 'Token no valido o no existe'
+          });
+          return;
+        }
+        Tienda.findByToken(token, function(usuario) {
+          if (!usuario) {
             res.send({
               error: true,
               message: 'Token no valido o no existe'
             });
             return;
           }
+          req.session.user = usuario;
+          if (req.session.user.tipo === Tienda.getTipo()) {
+            next();
+          } else {
+            res.send({
+              error: true,
+              message: 'No tiene permiso para realizar esta acción'
+            });
+            return;
+          }
         });
+      });
     } else {
       res.send({
         error: true,
@@ -122,13 +128,21 @@ module.exports = {
     }
   },
   findPizza: function(req, res, next) {
-    Pizza.findOne({_id: req.body.idPizza}, function(err, pizza) {
+    Pizza.findOne({
+      _id: req.body.idPizza
+    }, function(err, pizza) {
       if (err) {
-        res.send({error: true, message: 'error buscando la pizza'});
+        res.send({
+          error: true,
+          message: 'error buscando la pizza'
+        });
         return;
       }
-      if(!pizza){
-        res.send({error: true, message: 'Esta pizza no existe'});
+      if (!pizza) {
+        res.send({
+          error: true,
+          message: 'Esta pizza no existe'
+        });
         return;
       }
       var tamano = {};

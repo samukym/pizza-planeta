@@ -28,7 +28,7 @@ module.exports = {
         console.log('comparePassword: ', isMatch);
         if (isMatch) {
           // Si es correcta generamos el token
-          var token = jwt.sign(motorizado, app.get('superSecret'), {
+          var token = jwt.sign(motorizado._id, app.get('superSecret'), {
             expiresIn: 86400, // tiempo de expiración
             algorithms: ['RS256']
           });
