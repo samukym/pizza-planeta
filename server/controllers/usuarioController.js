@@ -1,15 +1,10 @@
 var jwt = require('jsonwebtoken'),
-Usuario = require('mongoose').model('Usuario'),
-app = require('../../server');
-
-var curTokenglob = null;
+  Usuario = require('mongoose').model('Usuario'),
+  app = require('../../server');
 
 module.exports = {
   //login: (email, password) / (usuario, tokenUsuario)
   //funciona
-  curToken: function(){
-    return curTokenglob;
-  },
   login: function(req, res) {
     Usuario.findByEmail(req.body.email, function(err, usuario) {
       if (err) {
@@ -36,13 +31,26 @@ module.exports = {
             expiresIn: 86400, // tiempo de expiración
             algorithms: ['RS256']
           });
-          req.session.token = token;
-          curTokenglob = token;
-          console.log('LoggedIn');
-          console.log('session', req.session);
-          return res.json({
-            usuario: usuario,
-            token: token
+          usuario.tokens.push({
+            value: token,
+            date: new Date()
+          });
+
+          usuario.save(function(err, usuario) {
+            if (err) {
+              res.send({
+                error: true,
+                message: 'Oops! Ocurrió un error'
+              });
+              return;
+            }
+            console.log('LoggedIn');
+            console.log('session', req.session);
+            req.session.user = usuario;
+            return res.json({
+              usuario: usuario,
+              token: token
+            });
           });
         }
         res.send({
@@ -54,34 +62,57 @@ module.exports = {
   },
   //funciona
   logout: function(req, res) {
-    req.session.destroy(function(err) {
-      console.log(req.session);
-      res.send('logout successful');
+    req.user.tokens = [];
+    req.user.save(function(err, usuario) {
+      if (err) {
+        res.send({
+          error: true,
+          message: 'Oops! Ocurrió un error'
+        });
+        return;
+      }
+      req.session.destroy(function(err) {
+        console.log(req.session);
+        res.send('logout successful');
+      });
     });
   },
   //crearUsuario: (email, password, nombre, dni, telefono) / (usuario, tokenUsuario)
   //funciona
   crearUsuario: function(req, res) {
-    Usuario.findOne({email: req.body.email}, function(error, usuario){
-      if(error){
+    Usuario.findOne({
+      email: req.body.email
+    }, function(error, usuario) {
+      if (error) {
         console.log("error buscando usuario para crear");
         return;
       }
-      if(usuario){
+      if (usuario) {
         res.send({
-          error:true,
-          message: 'El usuario '+usuario.email+' ya existe'
+          error: true,
+          message: 'El usuario ' + usuario.email + ' ya existe'
         });
         return;
       }
-      var usuario = new Usuario({
-        email: req.param('email'),
-        password: req.param('password'),
-        nombre: req.param('nombre'),
-        dni: req.param('dni'),
-        telefono: req.param('telefono')
+      var newUsuario = new Usuario({
+        email: req.body.email,
+        password: req.body.password,
+        nombre: req.body.nombre,
+        dni: req.body.dni,
+        telefono: req.body.telefono,
+        tokens: []
       });
-      usuario.save(function(err, usuario) {
+
+      var token = jwt.sign(newUsuario, app.get('superSecret'), {
+        expiresIn: 86400, // tiempo de expiración, checar documentacion
+        algorithms: ['RS256']
+      });
+      newUsuario.tokens.push({
+        value: token,
+        date: new Date()
+      });
+
+      newUsuario.save(function(err, usuario) {
         if (err) {
           res.send({
             error: true,
@@ -89,15 +120,10 @@ module.exports = {
           });
           return;
         }
-        var token = jwt.sign(usuario, app.get('superSecret'), {
-        expiresIn: 86400, // tiempo de expiración, checar documentacion
-        algorithms: ['RS256']
-      });
-        req.session.token = token;
-        curTokenglob = token;
-        console.log('Usuario insertado', usuario);
+        req.session.user = newUsuario;
+        console.log('Usuario insertado', newUsuario);
         return res.json({
-          usuario: usuario,
+          usuario: newUsuario,
           token: token
         });
       });
@@ -109,21 +135,26 @@ module.exports = {
   //agregarDireccion: (nombre, calle, distrito, ciudad, latitud, longitud) / (resp)
   //funciona
   agregarDireccion: function(req, res) {
-   Usuario.update( {_id : req.session.user._id},
-    {$push: {direcciones: {
-      nombre : req.body.nombre,
-      calle : req.body.calle,
-      distrito : req.body.distrito,
-      ciudad : req.body.ciudad,
-      latitud : req.body.latitud,
-      longitud : req.body.longitud }}
-    }, function(err, resp){
-      if(err){
+    Usuario.update({
+      _id: req.session.user._id
+    }, {
+      $push: {
+        direcciones: {
+          nombre: req.body.nombre,
+          calle: req.body.calle,
+          distrito: req.body.distrito,
+          ciudad: req.body.ciudad,
+          latitud: req.body.latitud,
+          longitud: req.body.longitud
+        }
+      }
+    }, function(err, resp) {
+      if (err) {
         console.error("error insertando direccion");
         return;
       }
-      if(!resp){
-        console.error("Usuario "+req.session.user._id+"no exste" );
+      if (!resp) {
+        console.error("Usuario " + req.session.user._id + "no exste");
         return;
       }
       console.log(resp);
@@ -131,7 +162,7 @@ module.exports = {
         respuesta: resp
       });
     });
- },
+  },
 
   //funciona
   findUsuario: function(req, res) {
