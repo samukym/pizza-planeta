@@ -149,5 +149,21 @@
     <!-- Custom Theme Scripts -->
         <script src="main.js"></script>
         <script src="js/custom.js"></script>
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+           var socket = io.connect('http://localhost:9001/socketTienda');
+
+            socket.emit('iniciar', {token: sessionStorage.tiendaToken, tiendaId: sessionStorage.tiendaId});
+             socket.on('ack', function(data){
+               // vrificar ack == 'connected'
+             	 console.log(data);
+             });
+
+            socket.on('pedidoActualizado', function(data){
+            	 console.log(data);
+               actualizarPedido(data);
+            });
+        </script>
+
   </body>
 </html>
