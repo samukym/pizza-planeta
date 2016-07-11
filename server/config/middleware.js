@@ -16,15 +16,15 @@ module.exports = {
         if (err) {
           res.send({
             error: true,
-            message: 'Token no valido o no existe'
+            message: 'Token no valido o no existe 1'
           });
           return;
         }
-        Usuario.findByToken(token, function(usuario) {
+        Usuario.findByToken(token, function(err, usuario) {
           if (!usuario) {
             res.send({
               error: true,
-              message: 'Token no valido o no existe'
+              message: 'Token no valido o no existe 2'
             });
             return;
           }
@@ -43,7 +43,7 @@ module.exports = {
     } else {
       res.send({
         error: true,
-        message: 'Token no valido o no existe'
+        message: 'Token no valido o no existe3'
       });
     }
   },

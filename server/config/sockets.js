@@ -1,4 +1,4 @@
-var updateRoute = require('../utils/getRoute');
+var updateRoute = require('../utils/updateRoute');
 
 var io = null;
 

@@ -52,13 +52,14 @@ module.exports.init = function() {
     getTipo: function() {
       return 1;
     },
-    getTiendaCercana: function(lat, lng, cb, err) {
+    getTiendaCercana: function(lat, lng, cb) {
       var dist = 0;
       var minDist = 99999999;
       var tienda = null;
       this.find({}, function(err, tiendas) {
         tiendas.forEach(function(tiendaIter) {
           dist = getDistance(tiendaIter.direccion.latitud, tiendaIter.direccion.longitud, lat, lng);
+          console.log(lat+lng);
           if (dist < minDist) {
             minDist = dist;
             tienda = tiendaIter;
