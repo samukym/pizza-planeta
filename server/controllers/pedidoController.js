@@ -7,8 +7,10 @@ Pizza = require('mongoose').model('Pizza'),
 Google = require('../services/googleService'),
 Distance = require('../utils/routesAndDistance'),
 Usuario = require('mongoose').model('Usuario'),
-qr = require('qr-image');
+qr = require('qr-image'),
 async = require('async');
+
+var socketMaster = null;
 
 function getTiendaCercana(pedido) {
   return new Promise(function(res, rej) {
@@ -73,6 +75,9 @@ function getRutaTienda(pedido) {
 }
 
 module.exports = {
+  asignarSocketMaster: function(msocketMaster){
+    socketMaster = msocketMaster;
+  },
   // findPedidosHistoricosUsuario: (tokenUsuario) / (lista de pedidos)
   findPedidosUsuario: function(req, res) {
     console.log(req.session.user._id);
@@ -320,6 +325,8 @@ module.exports = {
         pedido.coEst = 10;
         pedido.save();
 
+        socketMaster.enviarPedidoActualizadoSocket(pedido);
+
         return res.json(pedido);
       }, function(err) {
         res.send({
@@ -360,7 +367,7 @@ module.exports = {
           pedido.datosUsuario = {
             nombre: usuario.nombre,
             telefono: usuario.telefono
-          }
+          };
           pedidosConUsuarioArray[i]=pedido;
           i++;
           cb();
@@ -371,7 +378,7 @@ module.exports = {
           return res.json(pedidosConUsuarioArray);
         }
       });
-    })
+    });
   },
   // asignarMotorizado: (tokenMotorizado, idPedido) / (pedido)
   asignarMotorizado: function(req, res) {
@@ -402,6 +409,9 @@ module.exports = {
       pedido.estado = 'En camino';
       pedido.coEst = 50;
       pedido.save();
+
+      socketMaster.enviarPedidoActualizadoSocket(pedido);
+
       return res.json(pedido);
     });
   },
@@ -455,9 +465,13 @@ module.exports = {
         });
         return;
       }
+
+      // TODO: Hacer cambio de estado en servidor
       pedido.estado = req.body.estado;
       pedido.coEst = req.body.coEst;
       pedido.save();
+
+      socketMaster.enviarPedidoActualizadoSocket(pedido);
 
       return res.json(pedido);
     });
@@ -491,6 +505,9 @@ module.exports = {
       pedido.estado = req.body.estado;
       pedido.coEst = req.body.coEst;
       pedido.save();
+
+      socketMaster.enviarPedidoActualizadoSocket(pedido);
+
       return res.json(pedido);
     });
   },
@@ -527,6 +544,9 @@ module.exports = {
       pedido.latitud = req.body.latitud;
       pedido.longitud = req.body.longitud;
       pedido.save();
+
+      socketMaster.enviarPedidoActualizadoSocket(pedido);
+
       return res.json(pedido);
     });
   }

@@ -19,6 +19,7 @@ pedidosService();
 /////////////
 
 // Web Services
+var pedidos = null;
 
 function pedidosService(){
       jQuery(function($) {
@@ -29,7 +30,8 @@ function pedidosService(){
               data: JSON.stringify({'token': tiendaToken}),
               success: function(data) {
                 console.log(data[0]);
-                pedidosShow(data);
+                pedidos = data;
+                pedidosShow();
               }
           });
         });
@@ -56,8 +58,8 @@ function actualizarService(id, coEst, estado){
 //Funciones
 
 //Mostrar pedidos activos para la tienda
-function pedidosShow(data){
- var d = data;
+function pedidosShow(){
+ var d = pedidos;
  var mega;
  var e = document.getElementsByClassName("widget")[0];
  e.innerHTML="";

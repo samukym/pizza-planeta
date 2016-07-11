@@ -1,6 +1,6 @@
 var mongoose = require('mongoose'),
 passwordHash = require('password-hash'),
-Distance = require('../../services/distanceService');
+Distance = require('../../utils/routesAndDistance');
 
 module.exports.init = function() {
   var tiendaSchema = new mongoose.Schema({

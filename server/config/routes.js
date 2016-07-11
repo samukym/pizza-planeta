@@ -1,7 +1,10 @@
 var controllers = require('../controllers'),
   middleware = require('./middleware');
 
-module.exports = function(app) {
+module.exports = function(app, socketMaster) {
+
+  controllers.pedido.asignarSocketMaster(socketMaster);
+
   app.post('/crearUsuario', controllers.usuario.crearUsuario);
   app.post('/loginUsuario', controllers.usuario.login);
   app.post('/logoutUsuario', middleware.validTokenUsuario, controllers.usuario.logout);

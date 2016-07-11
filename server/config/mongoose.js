@@ -1,9 +1,4 @@
-var mongoose = require('mongoose'),
-  PizzaModel = require('../data/models/Pizza'),
-  UsuarioModel = require('../data/models/Usuario'),
-  MotorizadoModel = require('../data/models/Motorizado'),
-  TiendaModel = require('../data/models/Tienda'),
-  PedidoModel = require('../data/models/Pedido');
+var mongoose = require('mongoose');
 
 module.exports = function(config) {
     mongoose.connect(config.db);
@@ -21,9 +16,14 @@ module.exports = function(config) {
         console.log('Database error: ' + err);
     });
 
+    var  PizzaModel = require('../data/models/Pizza');
     PizzaModel.init();
+    var  UsuarioModel = require('../data/models/Usuario');
     UsuarioModel.init();
+    var  MotorizadoModel = require('../data/models/Motorizado');
     MotorizadoModel.init();
-    TiendaModel.init();
+    var  PedidoModel = require('../data/models/Pedido');
     PedidoModel.init();
+    var  TiendaModel = require('../data/models/Tienda');
+    TiendaModel.init();
 };
