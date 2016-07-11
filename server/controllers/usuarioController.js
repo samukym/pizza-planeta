@@ -52,11 +52,12 @@ module.exports = {
               token: token
             });
           });
+        } else {
+          res.send({
+            error: true,
+            message: 'La contraseña no es correcta'
+          });
         }
-        res.send({
-          error: true,
-          message: 'La contraseña no es correcta'
-        });
       });
     });
   },
