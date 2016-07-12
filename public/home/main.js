@@ -106,7 +106,6 @@ function actualizarEstado(id, coEst, estado){
 function appendPedido(x){
   var mega;
   var e = document.getElementsByClassName("widget")[0];
-
   //Construir el widget de cada pedido
 
   // Timer (encima del widget)
@@ -191,12 +190,22 @@ function actualizarPedido(data){
   for(i=0;i<pedidos.length;i++){
     if(data._id == pedidos[i]._id){
       pedidos[i] = data;
-      var e = document.getElementById('estado-'+data._id);
-      e.innerHTML = data.estado;
+      if(data.coEst >=10 && data.coEst <=21){
+        var e = document.getElementById('estado-'+data._id);
+        e.innerHTML = data.estado;
+      }else if(data.coEst == 22){
+        pintarQR(data);
+      }else{
+        pedidosService();
+      }
+
       flag = 'y';
     }
   }
   if(flag == 'n'){
-    appendPedido(data);
+    if(data.coEst==10 || data.coEst=='10' ){
+      pedidos.push(data);
+      appendPedido(data);
+    }
   }
 }
