@@ -83,12 +83,6 @@ module.exports = {
           return;
         }
       });
-    } else {
-      res.send({
-        error: true,
-        message: 'Token no valido o no existe'
-      });
-    }
   },
   validTokenTienda: function(req, res, next) {
     console.log('validTokenTienda');
