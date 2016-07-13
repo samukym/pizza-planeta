@@ -50,8 +50,7 @@ module.exports = {
   validTokenMotorizado: function(req, res, next) {
     console.log('validTokenMotorizado');
     var token = req.body.token;
-    if (token) {
-      if (err) {
+    if (!token) {
         res.send({
           error: true,
           message: 'Token no valido o no existe'
@@ -59,6 +58,13 @@ module.exports = {
         return;
       }
       Motorizado.findByToken(token, function(err, motorizado) {
+        if(err){
+          res.send({
+            error: true,
+            message: 'Error en  buscar token motorizado'
+          });
+          return;
+        }
         if (!motorizado) {
           res.send({
             error: true,
