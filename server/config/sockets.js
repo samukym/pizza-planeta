@@ -1,4 +1,5 @@
 var updateRoute = require('../utils/updateRoute');
+var auth = require('../utils/auth');
 
 var io = null;
 
@@ -36,9 +37,7 @@ module.exports = {
             });
         });
         //TODO
-        socket.on('disconnect', function() {
-          //botar
-        });
+
       });
 
     io.of('/socketUsuario')
@@ -55,9 +54,7 @@ module.exports = {
           socket.emit('pedidoActualizado', currentPedido);
         });
         //TODO
-        socket.on('disconnect', function() {
-          //botar
-        });
+
       });
 
     io.of('/socketTienda')
@@ -66,16 +63,22 @@ module.exports = {
 
         socket.on('iniciar', function(data) {
           // validar token data.token
-          // considerar conseguir id pedido por token de motori<.
-          currentTiendaId = data.tiendaId;
-          //TODO
-          socket.join(currentTiendaId);
-          socket.emit('ack', 'connected');
+          // considerar conseguir id tienda por token de tienda
+          if(!data.token){
+            console.log("token no recibido");
+            return;
+          }
+          auth.validTokenTienda(data.token, function(err, tienda){
+            if(err){
+              console.log("error validando tienda");
+              return;
+            }
+            currentTiendaId = tienda._id;
+            socket.join(currentTiendaId);
+            socket.emit('ack', 'connected');
+          });
         });
-        //TODO
-        socket.on('disconnect', function() {
-          //botar
-        });
+
       });
 
   }

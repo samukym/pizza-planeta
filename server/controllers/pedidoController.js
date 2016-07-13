@@ -466,7 +466,7 @@ module.exports = {
         return;
       }
 
-      pedido.updateEstado(rnextEstado); // incrementar
+      pedido.updateEstado(nextEstado); // incrementar
       pedido.save();
 
       socketMaster.enviarPedidoActualizadoSocket(pedido);
