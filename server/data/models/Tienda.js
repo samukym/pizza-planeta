@@ -69,7 +69,8 @@ module.exports.init = function() {
       });
     },
     findByToken: function(token, callback) {
-      return this.findOne({
+      console.log("Tienda.findByToken",token);
+      this.findOne({
         tokens: {
           $elemMatch: {
             value: token

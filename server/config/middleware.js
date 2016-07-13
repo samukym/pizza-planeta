@@ -58,7 +58,7 @@ module.exports = {
         });
         return;
       }
-      Motorizado.findByToken(token, function(motorizado) {
+      Motorizado.findByToken(token, function(err, motorizado) {
         if (!motorizado) {
           res.send({
             error: true,
@@ -89,22 +89,19 @@ module.exports = {
     var token = req.body.token;
     if (token) {
       jwt.verify(token, app.get('superSecret'), function(err, decoded) {
-        if (err) res.send({
-          error: true,
-          message: 'Token no valido o no existe'
-        });
         if (err) {
           res.send({
             error: true,
-            message: 'Token no valido o no existe'
+            message: 'Token no valido o no existe 11'
           });
           return;
         }
-        Tienda.findByToken(token, function(tienda) {
+        Tienda.findByToken(token, function(err, tienda) {
+        console.log("Tienda.findByToken2",tienda);
           if (!tienda) {
             res.send({
               error: true,
-              message: 'Token no valido o no existe'
+              message: 'Token no valido o no existe 12'
             });
             return;
           }
@@ -123,7 +120,7 @@ module.exports = {
     } else {
       res.send({
         error: true,
-        message: 'Token no valido o no existe'
+        message: 'Token no valido o no existe 13'
       });
     }
   },

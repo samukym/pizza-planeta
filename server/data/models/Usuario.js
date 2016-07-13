@@ -38,10 +38,10 @@ module.exports.init = function() {
     comparePassword: function(candidatePassword, cb) {
       cb(null, passwordHash.verify(candidatePassword, this.hashed_password));
     },
-    validateToken: function(checkToken, cb){
+    validateToken: function(checkToken, cb) {
       var existe = false;
-      for (var i=0; i<this.tokens.length; i++){
-        if (this.tokens[i].value == checkToken){
+      for (var i = 0; i < this.tokens.length; i++) {
+        if (this.tokens[i].value == checkToken) {
           existe = true;
           break;
         }
@@ -61,7 +61,11 @@ module.exports.init = function() {
     },
     findByToken: function(token, callback) {
       return this.findOne({
-        tokens: { $elemMatch: { value: token } }
+        tokens: {
+          $elemMatch: {
+            value: token
+          }
+        }
       }, callback);
     }
   });
