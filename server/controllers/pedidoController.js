@@ -118,7 +118,7 @@ module.exports = {
       return res.json(pedido);
     });
   },
-  //findPedidoActivo: (tokenUsuario) / (pedido activo) || pedido tal que 10 <= coEstado < 70
+  //findPedidoActivo: (tokenUsuario) / (pedido activo) || pedido tal que 10 < co Estado < 70
   findPedidoActivo: function(req, res) {
     Pedido.findOne({
       usuario: req.session.user._id,
@@ -165,20 +165,10 @@ module.exports = {
       //SI NO HAY UN PEDIDO CREADO, SE CREA AL MOMENTO DE AGREGAR LA PRIMERA PIZZA
       if (!pedido) {
         pedido = new Pedido({
-          usuario: req.session.user._id,
-          estado: "Sin confirmar",
-          coEst: 0
+          usuario: req.session.user._id
         });
-        pedido.save(function(err, pedido) {
-          if (err) {
-            res.send({
-              error: true,
-              message: 'Oops! Ocurrió un error'
-            });
-            return;
-          }
-          console.log('Pedido creado', pedido);
-        });
+        pedido.updateEstado(0); // Sin Confirmar
+        console.log('Pedido creado', pedido);
       }
       console.log(req.nuevaPizza);
 
@@ -205,19 +195,21 @@ module.exports = {
           message: 'Oops! Ocurrió un error'
         });
         return;
-      } else if (!pedido) {
+      }
+      if (!pedido) {
         res.send({
           error: true,
           message: 'Pedido no encontrado'
         });
         return;
-      } else if (pedido.estado != "Sin confirmar") {
+      }
+      if (pedido.estado != "Sin confirmar") {
         res.send({
           error: true,
           message: 'No puedes eliminar una pizza si el pedido ya ha sido confirmado'
         });
         return;
-      } else {
+      }
         Pedido.update({
             _id: pedido._id
           }, {
@@ -241,7 +233,6 @@ module.exports = {
               return;
             }
           });
-      }
     });
   },
 
@@ -285,8 +276,6 @@ module.exports = {
       pedido.comentario = req.body.comentarioPedido;
       pedido.fecha = new Date();
       pedido.codReciboVisa = req.body.codReciboVisa;
-      pedido.estado = "Confirmado";
-      pedido.coEst = 10;
 
       for (i = 0; i < req.session.user.direcciones.length; i++) {
         if (req.session.user.direcciones[i]._id == req.body.idDireccion) {
@@ -330,8 +319,7 @@ module.exports = {
         })
         .then(function(pedido) {
           console.log(pedido);
-          pedido.estado = "Confirmado";
-          pedido.coEst = 10;
+          pedido.updateEstado(10); // Confirmado
           pedido.save(function(err) {
             if (err) {
               res.send({
@@ -407,8 +395,7 @@ module.exports = {
         dni: req.session.user.dni,
         placa: req.session.user.placa
       };
-      pedido.estado = 'En camino';
-      pedido.coEst = 50;
+      pedido.updateEstado(50); // En camino
       pedido.save();
 
       socketMaster.enviarPedidoActualizadoSocket(pedido);
@@ -447,7 +434,7 @@ module.exports = {
       return res.json(pedido);
     });
   },
-  // actualizarEstadoPedidoTienda: (tokenTienda, idPedido, coEst, estado) / (lista de pedidos),
+  // actualizarEstadoPedidoTienda: (tokenTienda, idPedido, co Est, estado) / (lista de pedidos),
   actualizarEstadoPedidoTienda: function(req, res) {
     Pedido.findOne({
       pedidoId: req.body.idPedido
@@ -469,9 +456,17 @@ module.exports = {
         return;
       }
 
-      // TODO: Hacer cambio de estado en servidor
-      pedido.estado = req.body.estado;
-      pedido.coEst = req.body.coEst;
+      var nextEstado = pedido.nextEstado();
+      if (nextEstado <= 10 || nextEstado >= 50) {
+        console.log('Estado fuera de rango tienda');
+        res.send({
+          error: true,
+          message: 'Estado fuera de rango'
+        });
+        return;
+      }
+
+      pedido.updateEstado(rnextEstado); // incrementar
       pedido.save();
 
       socketMaster.enviarPedidoActualizadoSocket(pedido);
@@ -486,7 +481,7 @@ module.exports = {
     res.type('png');
     code.pipe(res);
   },
-  // actualizarEstadoPedidoMotorizado: (tokenMotorizado, idPedido, coEst, estado) / (pedido)
+  // actualizarEstadoPedidoMotorizado: (tokenMotorizado, idPedido, co Est, estado) / (pedido)
   actualizarEstadoPedidoMotorizado: function(req, res) {
     Pedido.findOne({
       pedidoId: req.body.idPedido
@@ -507,8 +502,7 @@ module.exports = {
         });
         return;
       }
-      pedido.estado = req.body.estado;
-      pedido.coEst = req.body.coEst;
+      pedido.updateEstado(req.body.coEst); // Llegando
       pedido.save();
 
       socketMaster.enviarPedidoActualizadoSocket(pedido);
@@ -540,12 +534,10 @@ module.exports = {
       }
 
       var distance = getDistance(pedido.direccion.latitud, pedido.direccion.longitud, req.body.latitud, req.body.longitud);
-      if (distance <= 5 && pedido.coEst !== 51) {
-        pedido.estado = "Llegando";
-        pedido.coEst = 51;
-      } else if (distance < 1 && pedido.coEst !== 52) {
-        pedido.estado = "Su pizza ha llegado";
-        pedido.coEst = 52;
+      if (distance <= 5 && pedido.coEst < 51) {
+        pedido.updateEstado(51); // Llegando
+    } else if (distance < 1 && pedido.coEst < 52) {
+        pedido.updateEstado(52); // Su pizza ha llegado
       }
 
       pedido.latitud = req.body.latitud;
