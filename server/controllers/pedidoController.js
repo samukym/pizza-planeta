@@ -2,30 +2,33 @@
 "use strict()";
 
 var Tienda = require('mongoose').model('Tienda'),
-Pedido = require('mongoose').model('Pedido'),
-Pizza = require('mongoose').model('Pizza'),
-Google = require('../services/googleService'),
-getDistance = require('../utils/distance'),
-Usuario = require('mongoose').model('Usuario'),
-qr = require('qr-image'),
-async = require('async');
+  Pedido = require('mongoose').model('Pedido'),
+  Pizza = require('mongoose').model('Pizza'),
+  Google = require('../services/googleService'),
+  getDistance = require('../utils/distance'),
+  Usuario = require('mongoose').model('Usuario'),
+  qr = require('qr-image'),
+  async = require('async');
 
 var socketMaster = null;
 
 function getTiendaCercana(pedido) {
   return new Promise(function(res, rej) {
+    console.log("RUN: ", 'getTiendaCercana');
+    console.log("RUN1: ", pedido);
+    console.log("RUN2: ", pedido.direccion);
     console.log(pedido.direccion.latitud);
     Tienda.getTiendaCercana(pedido.direccion.latitud,
       pedido.direccion.longitud,
       function(err, tienda) {
-        if(err){
+        if (err) {
           rej("error de lanata");
           return;
         }
         if (!tienda) {
           rej("no hay tienda");
           return;
-        }else{
+        } else {
           res(tienda);
         }
       });
@@ -38,7 +41,7 @@ function getRutaTienda(pedido) {
   return new Promise(function(res, rej) {
 
     Tienda.findOne({
-      _id: pedido.tienda._id
+      _id: pedido.tienda
     }, function(err, tienda) {
       if (!tienda) {
         rej(Error("no tienda"));
@@ -63,14 +66,14 @@ function getRutaTienda(pedido) {
 }
 
 module.exports = {
-  asignarSocketMaster: function(msocketMaster){
+  asignarSocketMaster: function(msocketMaster) {
     socketMaster = msocketMaster;
   },
   // findPedidosHistoricosUsuario: (tokenUsuario) / (lista de pedidos)
   findPedidosUsuario: function(req, res) {
     console.log(req.session.user._id);
     Pedido.find({
-      usuarioId: req.session.user._id
+      usuario: req.session.user._id
     }).exec(function(err, pedidos) {
       if (err) {
         console.log('error en find: ', err);
@@ -91,8 +94,10 @@ module.exports = {
   },
   // findCarrito: (tokenUsuario) /(pedido activo)
   findCarrito: function(req, res) {
+    console.log('RUN: ', 'findCarrito');
+    console.log('USER ID: ', req.session.user._id);
     Pedido.findOne({
-      usuarioId: req.session.user._id,
+      usuario: req.session.user._id,
       coEst: 0
     }).exec(function(err, pedido) {
       if (err) {
@@ -114,10 +119,13 @@ module.exports = {
     });
   },
   //findPedidoActivo: (tokenUsuario) / (pedido activo) || pedido tal que 10 <= coEstado < 70
-  findPedidoActivo: function(req, res){
+  findPedidoActivo: function(req, res) {
     Pedido.findOne({
-      usuarioId: req.session.user._id,
-      coEst: { $gte: 10, $lt: 70}
+      usuario: req.session.user._id,
+      coEst: {
+        $gte: 10,
+        $lt: 70
+      }
     }).populate('usuario').populate('tienda').exec(function(err, pedido) {
       if (err) {
         console.log('error en find: ', err);
@@ -140,8 +148,10 @@ module.exports = {
   // agregarPizzaCarrito: (tokenUsuario, idTienda, idPizza, codTamano, cantidad, comentario)/(pedido actualizado)
   //primero pasa por el middleware donde se settea req.nuevaPizza
   agregarPizzaCarrito: function(req, res) {
+    console.log('RUN: ', 'findCarrito');
+    console.log('USER ID: ', req.session.user._id);
     Pedido.findOne({
-      usuarioId: req.session.user._id,
+      usuario: req.session.user._id,
       coEst: 0
     }).exec(function(err, pedido) {
       if (err) {
@@ -155,11 +165,7 @@ module.exports = {
       //SI NO HAY UN PEDIDO CREADO, SE CREA AL MOMENTO DE AGREGAR LA PRIMERA PIZZA
       if (!pedido) {
         pedido = new Pedido({
-          usuarioId: req.session.user._id,
-          datosUsuario: {
-            nombre: req.session.nombre,
-            telefono: req.session.telefono,
-          },
+          usuario: req.session.user._id,
           estado: "Sin confirmar",
           coEst: 0
         });
@@ -189,7 +195,7 @@ module.exports = {
   // quitarPizzaCarrito: (tokenUsuario, idPizza, idPedido)/(pedido actualizado)
   quitarPizzaCarrito: function(req, res) {
     Pedido.findOne({
-      usuarioId: req.session.user._id,
+      usuario: req.session.user._id,
       coEst: 0
     }).exec(function(err, pedido) {
       if (err) {
@@ -213,36 +219,37 @@ module.exports = {
         return;
       } else {
         Pedido.update({
-          _id: pedido._id
-        }, {
-          $pull: {
-            pizzas: {
-              _id: req.body.idPizzaCarrito
+            _id: pedido._id
+          }, {
+            $pull: {
+              pizzas: {
+                _id: req.body.idPizzaCarrito
+              }
             }
-          }
-        },
-        function(err) {
-          if (err) {
-            res.send({
-              error: true,
-              message: "Pizza no existe en el carrito"
-            });
-            return;
-          } else {
-            res.send({
-              message: "OK"
-            });
-            return;
-          }
-        });
+          },
+          function(err) {
+            if (err) {
+              res.send({
+                error: true,
+                message: "Pizza no existe en el carrito"
+              });
+              return;
+            } else {
+              res.send({
+                message: "OK"
+              });
+              return;
+            }
+          });
       }
     });
   },
 
   // confirmarCarrito: (tokenUsuario,comentarioPedido,idDireccion,codReciboVisa)/(pedido con tienda dentro | msgError)
   confirmarCarrito: function(req, res) {
+    console.log("RUN: ", 'confirmarCarrito');
     Pedido.findOne({
-      usuarioId: req.session.user._id
+      usuario: req.session.user._id
     }, function(err, pedido) {
       if (err) {
         res.send({
@@ -250,7 +257,7 @@ module.exports = {
           message: "Error en la busqueda del carrito"
         });
         return;
-      } 
+      }
       if (!pedido) {
         res.send({
           error: true,
@@ -281,68 +288,78 @@ module.exports = {
       pedido.estado = "Confirmado";
       pedido.coEst = 10;
 
-      var direccion = {};
       for (i = 0; i < req.session.user.direcciones.length; i++) {
-        if (req.session.user.direcciones[i]._id === req.body.idDireccion) {
-          direccion = req.session.user.direcciones[i];
+        if (req.session.user.direcciones[i]._id == req.body.idDireccion) {
+          pedido.direccion = req.session.user.direcciones[i];
           break;
         }
       }
-      pedido.direccion = direccion;
-      console.log("1 "+pedido);
+      console.log("PedidoDireccion " + pedido.direccion);
+      if (!pedido.direccion.latitud) {
+        res.send({
+          error: true,
+          message: "No se encontró dirección"
+        });
+        return;
+      }
+
+      console.log("1 " + pedido);
 
       getTiendaCercana(pedido).then(function(tienda) {
-        pedido.tienda = tienda._id;
-        pedido.latitud = tienda.direccion.latitud;
-        pedido.longitud = tienda.direccion.longitud;
-        console.log("2 "+pedido.tienda);
-        return pedido;
-      }, function(err){
-        console.log("av: "+err);
-      })
-      .then(function(pedido) {
-        console.log("3 "+pedido.tienda);
-        return getRutaTienda(pedido)
-        .then(function(ruta) {
-          pedido.ruta = ruta;
+          pedido.tienda = tienda._id;
+          pedido.latitud = tienda.direccion.latitud;
+          pedido.longitud = tienda.direccion.longitud;
+          console.log("2 " + pedido.tienda);
           return pedido;
+        }, function(err) {
+          console.log("av: " + err);
+        })
+        .then(function(pedido) {
+          console.log("3 " + pedido.tienda);
+          return getRutaTienda(pedido)
+            .then(function(ruta) {
+              pedido.ruta = ruta;
+              return pedido;
+            }, function(err) {
+              res.send({
+                error: true,
+                message: "No se pudo obtener la ruta"
+              });
+              return;
+            });
+        })
+        .then(function(pedido) {
+          console.log(pedido);
+          pedido.estado = "Confirmado";
+          pedido.coEst = 10;
+          pedido.save(function(err) {
+            if (err) {
+              res.send({
+                error: true,
+                msgError: "error guardadndo el pedido"
+              });
+              return;
+            }
+
+            socketMaster.enviarPedidoActualizadoSocket(pedido);
+
+            return res.json(pedido);
+          });
+
         }, function(err) {
           res.send({
             error: true,
-            message: "No se pudo obtener la ruta"
+            message: "No se pudo confirmar el pedido. " + err
           });
           return;
         });
-      })
-      .then(function(pedido) {
-        console.log(pedido);
-        pedido.estado = "Confirmado";
-        pedido.coEst = 10;
-        pedido.save(function(err){
-          if (err){
-            res.send({error: true, msgError: "error guardadndo el pedido"});
-            return;
-          }
-
-          socketMaster.enviarPedidoActualizadoSocket(pedido);
-
-          return res.json(pedido);
-        });
-
-      }, function(err) {
-        res.send({
-          error: true,
-          message: "No se pudo confirmar el pedido. "+err
-        });
-        return;
-      });
     });
   },
   //findPedidosActivosTienda: (tokenTienda) / (lista de pedidos),
   findPedidosActivosTienda: function(req, res) {
-    var pedidosConUsuarioArray=[];
+    var pedidosConUsuarioArray = [];
     Pedido.find({
-      tiendaId: req.session.user._id
+      tienda: req.session.user._id
     }).populate('usuario').populate('tienda').exec(function(err, pedidos) {
       if (err) {
         console.log('error en find: ', err);

@@ -4,8 +4,8 @@ var io = null;
 
 module.exports = {
   enviarPedidoActualizadoSocket: function(pedido) {
-    io.toRoom(pedido._id).emit('pedidoActualizado', pedido);
-    io.toRoom(pedido.tiendaId).emit('pedidoActualizado', pedido);
+    io.to(pedido._id).emit('pedidoActualizado', pedido);
+    io.to(pedido.tiendaId).emit('pedidoActualizado', pedido);
   },
   init: function(server) {
     io = require('socket.io')(server);
