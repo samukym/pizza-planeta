@@ -19,7 +19,8 @@
           var resp;
           UserService.ValidLogin(request)
             .then(function(response) {
-              if (response.success) {
+                console.log(response);
+              if (response.token) {
                 sessionStorage.token = response.token;
                 console.log(response.token);
                 console.log('Session: ' + sessionStorage.token);
