@@ -179,11 +179,16 @@ function pintarQR(pedido){
 function actualizarEstado(id){
   console.log(id);
   for(i=0;i<pedidos.length;i++){
+    console.log('En el for');
     if(id == pedidos[i]._id){
-      if(pedidos[i].coEst <= 10 || pedidos[i].coEst >= 22){
+      console.log('Buscando ID');
+      if(pedidos[i].coEst < 10 || pedidos[i].coEst >= 22){
+        console.log('El codigo esta mal');
         return;
       }else{
+        console.log('Corriendo el Service');
         actualizarService(id);
+        pedidosService();
       }
     }
   }
