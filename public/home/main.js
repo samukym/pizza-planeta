@@ -12,6 +12,7 @@ if (sessionStorage.token){
   //Variables Globales
 
   var tiendaToken = sessionStorage.token;
+  console.log(tiendaToken);
   var pedidos = null;
 
   //Inicializar lista de pedidos

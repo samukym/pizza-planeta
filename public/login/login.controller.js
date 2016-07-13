@@ -34,6 +34,7 @@
         password: vm.password
       };
       AuthenticationService.Login(request, function(response) {
+        console.log(response);
         if (response.success) {
           FlashService.Success(response.message, true);
           var e = document.getElementById("username");
