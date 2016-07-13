@@ -12,7 +12,6 @@ module.exports = function(app, socketMaster) {
   app.post('/agregarDireccion', middleware.validTokenUsuario, controllers.usuario.agregarDireccion);
   app.get('/usuarios', controllers.usuario.find);
 
-
   app.post('/pedidosUsuario', middleware.validTokenUsuario, controllers.pedido.findPedidosUsuario);
   app.post('/carritoUsuario', middleware.validTokenUsuario, controllers.pedido.findCarrito);
   app.post('/pedidoActivo', middleware.validTokenUsuario, controllers.pedido.findPedidoActivo);

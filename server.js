@@ -3,7 +3,7 @@
 
 var express = require('express');
 
-var env = process.env.NODE_ENV || 'test';
+var env = process.env.NODE_ENV || 'development';
 var config = require('./server/config/config')[env];
 
 var app = module.exports = express();
