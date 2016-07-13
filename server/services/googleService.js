@@ -26,11 +26,12 @@ module.exports = {
         return;
       }
       console.log("Get response: " + response.statusCode);
+
       var ruta = {
-        tiempo: body.routes[0].legs[0].steps[0].duration.value,
-        distancia: body.routes[0].legs[0].steps[0].distance.value,
-        points: body.routes[0].legs[0].steps[0].polyline.points
-      }
+        tiempo: body.routes[0].legs[0].duration.value,
+        distancia: body.routes[0].legs[0].distance.value,
+        points: body.routes[0].overview_polyline.points
+    };
       cb(null, ruta);
     });
   }
