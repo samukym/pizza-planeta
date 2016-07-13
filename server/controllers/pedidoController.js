@@ -364,7 +364,7 @@ module.exports = {
         });
         return;
       }
-      res.json(pedido);
+      res.json(pedidos);
     });
   },
   // asignarMotorizado: (tokenMotorizado, idPedido) / (pedido)
