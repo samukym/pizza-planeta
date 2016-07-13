@@ -43,17 +43,15 @@ function pedidosService(){
         });
 }
 
-function actualizarService(id, coEst, estado){
+function actualizarService(id){
       jQuery(function($) {
          $.ajax({
               type: 'POST',
               url:  '../../actualizarEstadoPedidoTienda',
               data: JSON.stringify({'tokenTienda' : tiendaToken,
-                                    'idPedido' : id,
-                                    'coEst' : coEst,
-                                    'estado' : estado}),
+                                    'idPedido' : id}),
               success: function(data) {
-                actualizarPedido(data)
+                console.log(data);
               }
           });
         });
@@ -77,28 +75,6 @@ function pedidosShow(){
     }
   }else{
     e.innerHTML = '<h2> No hay pedidos en este momento</h2>';
-  }
-}
-
-// Pintar QR por pedido
-function pintarQR(pedido){
-  var a = document.getElementById('pintar-'+pedido);
-  var e = document.getElementById("div-"+pedido);
-  var e2 = document.getElementsByClassName("widget")[0];
-  if(a.innerHTML == "Ocultar QR"){
-    pedidosService();
-  }else if (a.innerHTML == "Mostrar QR") {
-    e.innerHTML = '<img src="../../getQrCode/'+pedido+'">';
-    a.innerHTML = "Ocultar QR";
-  }
-}
-
-// Actualizar estado
-function actualizarEstado(id, coEst, estado){
-  if(coEst == 90 || estado == 'Entregado'){
-    return;
-  }else{
-    actualizarService(id, coEst, estado);
   }
 }
 
@@ -151,14 +127,14 @@ function appendPedido(x){
 
       mega += '<div class="col-md-3 col-sm-6 col-xs-12 profile_details"><div class="well profile_view"><div class="col-sm-12" name="bloque"id="div-'+x._id+'">\
       <h4 class="brief" style="text-align:center;"><i>Pedido # '+ x._id + '</i></h4><div class="left col-xs-7">\
-      <h2>'+x.datosUsuario.nombre+'</h2><strong>Pedido: </strong> <ul class="list-unstyled">';
+      <h2>'+x.usuario.nombre+'</h2><strong>Pedido: </strong> <ul class="list-unstyled">';
 
     //Meterle las Pizzas
     var pi = x.pizzas;
     for (j = 0; j < pi.length; j++){
       var p = pi[j];
       //Crea cada pizza en un LI
-      mega += '<li>'+p.cantidad+' Pizza ' + p.nombre ;
+      mega += '<li>'+p.cantidad+' Pizza ' + p.nombre + ' (' +p.tamano.nombre+')' ;
       //Si la pizza tiene comentario
       if(p.comentario==""){
         mega +='</li>';
@@ -170,7 +146,7 @@ function appendPedido(x){
 
       mega += '<div class="bottom col-xs-12 text-center"><ul class="list-unstyled" style="margin-top:5px; ">\
       <li><i class="fa fa-building"> </i><strong>Dirección: </strong>'+x.direccion.calle + ', ' + x.direccion.distrito + '</li>\
-      <li><i class="fa fa-phone"></i> <strong>Teléfono: </strong>' + x.datosUsuario.telefono + '</li>\
+      <li><i class="fa fa-phone"></i> <strong>Teléfono: </strong>' + x.usuario.telefono + '</li>\
       </ul></div>' ;
 
       mega +='<div class="col-xs-12 bottom text-center blacktext" id="bg-'+x._id+'">\
@@ -184,6 +160,34 @@ function appendPedido(x){
       loop();
 }
 
+// Pintar QR por pedido
+function pintarQR(pedido){
+  var a = document.getElementById('pintar-'+pedido);
+  var e = document.getElementById("div-"+pedido);
+  var e2 = document.getElementsByClassName("widget")[0];
+  if(a.innerHTML == "Ocultar QR"){
+    pedidosService();
+  }else if (a.innerHTML == "Mostrar QR") {
+    e.innerHTML = '<img src="../../getQrCode/'+pedido+'">';
+    a.innerHTML = "Ocultar QR";
+  }
+}
+
+// Actualizar estado
+function actualizarEstado(id){
+  for(i=0;i<pedidos.length;i++){
+    if(id == pedidos[i]._id){
+      if(pedidos[i].coEst <= 10 || pedidos[i].coEst >= 22){
+        return;
+      }else{
+        actualizarService(id);
+      }
+    }
+  }
+}
+
+
+
  // Actualiza el estado del pedido en pantalla con la respuesta del servicio (un pedido)
 function actualizarPedido(data){
   var flag = 'n';
@@ -193,7 +197,7 @@ function actualizarPedido(data){
       if(data.coEst >=10 && data.coEst <=21){
         var e = document.getElementById('estado-'+data._id);
         e.innerHTML = data.estado;
-      }else if(data.coEst == 22){
+      }else if(data.coEst >= 22){
         pintarQR(data);
       }else{
         pedidosService();
