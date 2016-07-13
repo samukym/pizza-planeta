@@ -39,7 +39,7 @@ module.exports.init = function() {
     validateToken: function(checkToken, cb) {
       var existe = false;
       for (var i = 0; i < this.tokens.length; i++) {
-        if (this.tokens[i].value === checkToken) {
+        if (this.tokens[i].value == checkToken) {
           existe = true;
           break;
         }

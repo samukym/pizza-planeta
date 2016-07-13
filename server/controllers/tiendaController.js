@@ -24,39 +24,41 @@ module.exports = {
       }
       tienda.comparePassword(req.body.password, function(err, isMatch) {
         console.log('comparePassword: ', isMatch);
-        if (isMatch) {
-          // Si es correcta generamos el token
-          var token = jwt.sign(tienda._id, app.get('superSecret'), {
-            expiresIn: 86400, // tiempo de expiración
-            algorithms: ['RS256']
-          });
-          tienda.tokens.push({
-            value: token,
-            date: new Date()
-          });
-
-          tienda.save(function(err, tienda) {
-            if (err) {
-              res.send({
-                error: true,
-                message: 'Oops! Ocurrió un error'
-              });
-              return;
-            }
-            console.log('LoggedIn');
-            console.log('session', req.session);
-            req.session.user = tienda;
-            return res.json({
-              tienda: tienda,
-              token: token
-            });
-          });
-        } else {
+        if (!isMatch || err) {
+            console.log('contraseña NO',err);
           res.send({
             error: true,
-            message: 'La contraseña no es correcta'
+            message: 'La contraseña no es correcta. '+err
           });
+          return;
         }
+        // Si es correcta generamos el token
+        var token = jwt.sign(tienda._id, app.get('superSecret'), {
+          expiresIn: 86400, // tiempo de expiración
+          algorithms: ['RS256']
+        });
+        tienda.tokens.push({
+          value: token,
+          date: new Date()
+        });
+
+        tienda.save(function(err, tienda) {
+          if (err) {
+            res.send({
+              error: true,
+              message: 'Oops! Ocurrió un error'
+            });
+            return;
+          }
+          console.log('LoggedIn',token);
+          req.session.user = tienda;
+          console.log('session', req.session);
+          res.json({
+            tienda: tienda,
+            token: token
+          });
+          return;
+        });
       });
     });
   },

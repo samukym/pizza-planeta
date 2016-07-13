@@ -38,11 +38,11 @@ module.exports = function(app, socketMaster) {
   app.post('/tienda', middleware.validTokenTienda, controllers.tienda.findTienda);
   // app.post('/pedidosActivosTienda', middleware.validTokenTienda, controllers.tienda.findPedidosActivosTienda);
   app.get('/tiendas', controllers.tienda.find);
-  // app.get('/creartiendas', controllers.tienda.crearTiendas);
+   app.get('/creartiendas', controllers.tienda.crearTiendas);
 
 
   app.get('/pizzas', controllers.pizza.find);
-  // app.get('/crearpizzas', controllers.pizza.crearPizzas);
+   app.get('/crearpizzas', controllers.pizza.crearPizzas);
 
   // app.get('*', function (req, res) {
   //         res.sendFile('../../public/index.html');
