@@ -1,5 +1,6 @@
 var updateRoute = require('../utils/updateRoute');
 var auth = require('../utils/auth');
+var Pedido = require('mongoose').model('Pedido');
 
 var io = null;
 
@@ -13,19 +14,15 @@ module.exports = {
 
     io.of('/socketMotorizado')
       .on('connection', function(socket) {
-        console.log("Conexion entrante actualizarPedido..");
-
-        var currentPedidoId = "";
-
         //cuando el cliente confirma pedido
         socket.on('iniciar', function(data) {
           // validar token data.token
           // considerar conseguir id pedido por token de motori<.
-          currentPedidoId = data.pedidoId;
+          //currentPedidoId = data.pedidoId;
           //TODO
-          currentPedido = {'Pedido': 'yay'};
-          socket.join(currentPedidoId);
-          socket.emit('pedidoActualizado', currentPedido);
+        //  currentPedido = {'Pedido': 'yay'};
+        //  socket.join(currentPedidoId);
+          //socket.emit('pedidoActualizado', currentPedido);
         });
         //TODO
         socket.on('actualizarUbicacion', function(data) {
@@ -39,27 +36,43 @@ module.exports = {
         //TODO
 
       });
-
     io.of('/socketUsuario')
       .on('connection', function(socket) {
-        var currentPedidoId = "";
-
         socket.on('iniciar', function(data) {
           // validar token data.token
-          // considerar conseguir id pedido por token de motori<.
-          currentPedidoId = data.pedidoId;
-          //TODO
-          currentPedido = null;
-          socket.join(currentPedidoId);
-          socket.emit('pedidoActualizado', currentPedido);
+          // considerar conseguir id pedido por token de motori<.;
+          if(!data.token){
+            console.log("token no recibido");
+            return;
+          }
+          if(!data.pedidoId){
+            console.log("pedidoId no recibido");
+            return;
+          }
+          auth.validTokenUsuario(data.token, function(err, usuario){
+            if(err){
+              console.log("error validadnto el token");
+              return
+            }
+            socket.join(data.pedidoId);
+            Pedido.findOne({
+              _id: data.pedidoId
+            }, function(err, pedido){
+              if(err){
+                console.log("error buscanod el pedido con id "+data.pedidoId);
+                return;
+              }
+              if(!pedido){
+                console.log("Pedido  de id "+ data.pedidoId+" no encontrado");
+                return;
+              }
+              socket.emit('pedidoActualizado', pedido);
+            });
+          });
         });
-        //TODO
-
       });
-
     io.of('/socketTienda')
       .on('connection', function(socket) {
-        var currentTiendaId = "";
 
         socket.on('iniciar', function(data) {
           // validar token data.token
@@ -73,8 +86,8 @@ module.exports = {
               console.log("error validando tienda");
               return;
             }
-            currentTiendaId = tienda._id;
-            socket.join(currentTiendaId);
+            socket.join(tienda.id);
+            console.log("socekt/socektTieda/join a "+tienda.id);
             socket.emit('ack', 'connected');
           });
         });
