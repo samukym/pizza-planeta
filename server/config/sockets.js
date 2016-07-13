@@ -14,43 +14,46 @@ module.exports = {
 
     io.of('/socketMotorizado')
       .on('connection', function(socket) {
-        //cuando el cliente confirma pedido
         socket.on('iniciar', function(data) {
           if(!data.token){
             console.log("token no recibido");
             return;
           }
-          if(!data.pedidoId){
+          if(!data.pedidoId){ 
             console.log("pedidoId no recibido");
             return;
           }
-          auth.validTokenMotorizado(data.token, function(err,motorizado){
+          auth.validTokenMotorizado(data.token, function(err){
             if(err){
               console.log("error validando Motorizado");
               return;
             }
             socket.join(data.pedidoId);
-
+            Pedido.findOne({
+              _id: data.pedidoId
+            }, function(err, pedido){
+              if(err){
+                console.log("error buscanod el pedido con id "+data.pedidoId);
+                return;
+              }
+              if(!pedido){
+                console.log("Pedido  de id "+ data.pedidoId+" no encontrado");
+                return;
+              }
+              socket.emit('pedidoActualizado', pedido);
+            });
           });
-          // validar token data.token
-          // considerar conseguir id pedido por token de motori<.
-          //currentPedidoId = data.pedidoId;
-          //TODO
-        //  currentPedido = {'Pedido': 'yay'};
-        //  socket.join(currentPedidoId);
-          //socket.emit('pedidoActualizado', currentPedido);
         });
-        //TODO
         socket.on('actualizarUbicacion', function(data) {
-          console.log(data);
-          //data.lat, data.lon
-          updateRoute(currentPedidoId, data.latitud, data.longitud,
+          if(!(data.latitud && ldata.longitud && data.idPedido) ){
+            console.log("actualizarUbicacion/socket: no se recibieron latitud,longitud,idPedido");
+            return;
+          }
+          updateRoute(data.idPedido, data.latitud, data.longitud,
             function(pedido) {
               socket.emit('pedidoActualizado', pedido);
             });
         });
-        //TODO
-
       });
     io.of('/socketUsuario')
       .on('connection', function(socket) {

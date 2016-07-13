@@ -11,7 +11,7 @@
   //  });
 
   //Para tienda
-   var socket = io.connect('http://localhost:9001/socketUsuario');
+   var socket = io.connect('http://localhost:9001/socketMotorizado');
     socket.emit('iniciar',
     {token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfYnNvbnR5cGUiOiJPYmplY3RJRCIsImlkIjoiVzJWw61cdTAwMTPCkcO5WVx1MDAwZcKnwqJVIiwiaWF0IjoxNDY4NDQyMzk3LCJleHAiOjE0Njg1Mjg3OTd9.YCG9mJfijhUvVktmmnNvX_TMtqgGPJIy_zidv-bUhNk'
     , pedidoId: '57869e10d66e88ab128bfa3d'
@@ -19,6 +19,7 @@
      socket.on('ack', function(data){
        // vrificar ack == 'connected'
      	 console.log(data);
+       socket.emit('actualizarUbicacion', {idPedido:'57869e10d66e88ab128bfa3d"', latitud:'12341', longitud: '3142'})
      });
 
     socket.on('pedidoActualizado', function(data){
