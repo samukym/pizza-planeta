@@ -5,7 +5,7 @@ var jwt = require('jsonwebtoken'),
 module.exports = {
   //login: (username, password) / (motorizado, tokenMotorizado)
   login: function(req, res) {
-    Motorizado.findByEmail(req.body.email, function(err, motorizado) {
+    Motorizado.findByUsername(req.body.username, function(err, motorizado) {
       if (err) {
         console.log('error en findByEmail: ', err);
         res.send({
