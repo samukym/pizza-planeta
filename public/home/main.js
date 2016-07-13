@@ -49,7 +49,7 @@ function actualizarService(id){
          $.ajax({
               type: 'POST',
               url:  '../../actualizarEstadoPedidoTienda',
-              data: JSON.stringify({'tokenTienda' : tiendaToken,
+              data: JSON.stringify({'token' : tiendaToken,
                                     'idPedido' : id}),
               success: function(data) {
                 console.log(data);
