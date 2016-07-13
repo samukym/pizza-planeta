@@ -35,7 +35,7 @@ function pedidosService(){
               contentType: 'application/json',
               data: JSON.stringify({'token': tiendaToken}),
               success: function(data) {
-                console.log(data[0]);
+                console.log(data);
                 pedidos = data;
                 pedidosShow();
               }
