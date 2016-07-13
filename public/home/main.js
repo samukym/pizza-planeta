@@ -86,7 +86,7 @@ function appendPedido(x){
   //Construir el widget de cada pedido
 
   // Timer (encima del widget)
-  mega = '<div class="col-md-12" style="width:100%">\
+  mega = '<div class="col-md-12" style="width:80%">\
   <h2 id="timer-'+x._id+'" style="font-size:18pt;text-align:center">\
   </h2></div>';
 
@@ -102,11 +102,13 @@ function appendPedido(x){
     setTimeout(function () {
       var now = new Date();
       var diff = now.getTime() - prev.getTime();
-      var min = Math.floor(diff / (1000*60));
+      var min = Math.floor(diff / (1000*60)) + 300;
       var secP = Math.round((diff / 1000)-(min*60));
-      var sec = secP.toString().slice(-2);
-      if(sec.length==1){
+      var sec =  100 - secP.toString().slice(-2);
+      if(sec.toString().length <=1){
         sec = '0'+sec;
+      }else if(sec == 100){
+        sec = '00';
       }
       var str = min + ':' + sec;
       document.getElementById('timer-'+x._id).innerHTML = str;
@@ -126,8 +128,8 @@ function appendPedido(x){
 
   //Formar el widget
 
-      mega += '<div class="col-md-3 col-sm-6 col-xs-12 profile_details"><div class="well profile_view"><div class="col-sm-12" name="bloque"id="div-'+x._id+'">\
-      <h4 class="brief" style="text-align:center;"><i>Pedido # '+ x._id + '</i></h4><div class="left col-xs-7">\
+      mega += '<div class="col-md-3 col-sm-6 col-xs-12 profile_details"><div class="well profile_view" onclick="actualizarEstado(&quot;'+x._id+'&quot;)"><div class="col-sm-12" name="bloque"id="div-'+x._id+'">\
+      <h4 class="brief" style="text-align:center;"><i>Pedido # '+ x._id + '</i></h4><div class="left">\
       <h2>'+x.usuario.nombre+'</h2><strong>Pedido: </strong> <ul class="list-unstyled">';
 
     //Meterle las Pizzas
@@ -146,15 +148,14 @@ function appendPedido(x){
       mega += '</ul></div></div>';
 
       mega += '<div class="bottom col-xs-12 text-center"><ul class="list-unstyled" style="margin-top:5px; ">\
-      <li><i class="fa fa-building"> </i><strong>Dirección: </strong>'+x.direccion.calle + ', ' + x.direccion.distrito + '</li>\
-      <li><i class="fa fa-phone"></i> <strong>Teléfono: </strong>' + x.usuario.telefono + '</li>\
+      <li><i class="fa fa-building"> </i><strong> Dirección: </strong>'+x.direccion.calle + ', ' + x.direccion.distrito + '</li>\
+      <li><i class="fa fa-phone"></i> <strong> Teléfono: </strong>' + x.usuario.telefono + '</li>\
       </ul></div>' ;
 
       mega +='<div class="col-xs-12 bottom text-center blacktext" id="bg-'+x._id+'">\
-      <div class="col-xs-12 col-sm-6 emphasis" onclick="actualizarEstado(&quot;'+x._id+'&quot;,'+x.coEst+',&quot;'+x.estado+'&quot;)" style=""><h2 > Estado: </h2>\
-      <h4 id="estado-'+x._id+'">'+x.estado+'</h4></div>\
-      <div class="col-xs-12 col-sm-6 emphasis"><div style="margin-top:25%;">\
-      <a id="pintar-'+x._id+'" href="#" onclick="pintarQR(&quot;'+x._id+'&quot;)" style="color:#000000">Mostrar QR</a>\
+      <div class="col-xs-12 col-sm-6 emphasis"  style=""><div style="margin-top:15%;"><h3>Estado:</h3></div></div>\
+      <div class="col-xs-12 col-sm-6 emphasis"><div style="margin-top:20%;">\
+      <h2 id="estado-'+x._id+'">'+x.estado+'</h2>\
       </div></div></div></div>';
 
       e.innerHTML += mega;
@@ -176,6 +177,7 @@ function pintarQR(pedido){
 
 // Actualizar estado
 function actualizarEstado(id){
+  console.log(id);
   for(i=0;i<pedidos.length;i++){
     if(id == pedidos[i]._id){
       if(pedidos[i].coEst <= 10 || pedidos[i].coEst >= 22){
