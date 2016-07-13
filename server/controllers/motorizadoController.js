@@ -5,17 +5,15 @@ var jwt = require('jsonwebtoken'),
 module.exports = {
   //login: (username, password) / (motorizado, tokenMotorizado)
   login: function(req, res) {
-    Motorizado.findByUsername(req.body.username, function(err, motorizado) {
+    Motorizado.findByEmail(req.body.email, function(err, motorizado) {
       if (err) {
-        console.log('error en findByUsername: ', err);
+        console.log('error en findByEmail: ', err);
         res.send({
           error: true,
           message: 'Oops! Ocurrió un error'
         });
         return;
       }
-      console.log('username', req.body.username);
-      console.log('motorizado', motorizado);
       if (!motorizado) {
         console.log('Incorrect');
         res.send({
@@ -32,26 +30,51 @@ module.exports = {
             expiresIn: 86400, // tiempo de expiración
             algorithms: ['RS256']
           });
-          req.session.token = token;
-          console.log('LoggedIn');
-          console.log('session', req.session);
-          return res.json({
-            motorizado: motorizado,
-            token: token
+          motorizado.tokens.push({
+            value: token,
+            date: new Date()
+          });
+
+          motorizado.save(function(err, motorizado) {
+            if (err) {
+              res.send({
+                error: true,
+                message: 'Oops! Ocurrió un error'
+              });
+              return;
+            }
+            console.log('LoggedIn');
+            console.log('session', req.session);
+            req.session.user = motorizado;
+            return res.json({
+              motorizado: motorizado,
+              token: token
+            });
+          });
+        } else {
+          res.send({
+            error: true,
+            message: 'La contraseña no es correcta'
           });
         }
-        res.send({
-          error: true,
-          message: 'La contraseña no es correcta'
-        });
       });
     });
   },
-  // logout: (tokenMotorizado)
+  //funciona
   logout: function(req, res) {
-    req.session.destroy(function(err) {
-      console.log(req.session);
-      res.send('logout successful');
+    req.user.tokens = [];
+    req.user.save(function(err, motorizado) {
+      if (err) {
+        res.send({
+          error: true,
+          message: 'Oops! Ocurrió un error'
+        });
+        return;
+      }
+      req.session.destroy(function(err) {
+        console.log(req.session);
+        res.send('logout successful');
+      });
     });
   },
   // findMotorizado: (tokenMotorizado) / (Motorizado)

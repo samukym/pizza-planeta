@@ -58,15 +58,15 @@ module.exports = {
         });
         return;
       }
-      Motorizado.findByToken(token, function(usuario) {
-        if (!usuario) {
+      Motorizado.findByToken(token, function(motorizado) {
+        if (!motorizado) {
           res.send({
             error: true,
             message: 'Token no valido o no existe'
           });
           return;
         }
-        req.session.user = usuario;
+        req.session.user = motorizado;
         if (req.session.user.tipo === Motorizado.getTipo()) {
           next();
         } else {
@@ -100,15 +100,15 @@ module.exports = {
           });
           return;
         }
-        Tienda.findByToken(token, function(usuario) {
-          if (!usuario) {
+        Tienda.findByToken(token, function(tienda) {
+          if (!tienda) {
             res.send({
               error: true,
               message: 'Token no valido o no existe'
             });
             return;
           }
-          req.session.user = usuario;
+          req.session.user = tienda;
           if (req.session.user.tipo === Tienda.getTipo()) {
             next();
           } else {

@@ -5,9 +5,9 @@ var jwt = require('jsonwebtoken'),
 module.exports = {
   // login: (id, password) / (Tienda, tokenTienda)
   login: function(req, res) {
-    Tienda.findById(req.body.id, function(err, tienda) {
+    Tienda.findByEmail(req.body.email, function(err, tienda) {
       if (err) {
-        console.log('error en findById: ', err);
+        console.log('error en findByEmail: ', err);
         res.send({
           error: true,
           message: 'Oops! Ocurrió un error'
@@ -18,40 +18,63 @@ module.exports = {
         console.log('Incorrect');
         res.send({
           error: true,
-          message: 'Tienda no encontrada'
+          message: 'Tienda no encontrado'
         });
         return;
       }
       tienda.comparePassword(req.body.password, function(err, isMatch) {
         console.log('comparePassword: ', isMatch);
-        if (!isMatch) {
+        if (isMatch) {
           // Si es correcta generamos el token
           var token = jwt.sign(tienda._id, app.get('superSecret'), {
             expiresIn: 86400, // tiempo de expiración
             algorithms: ['RS256']
           });
-          req.session.token = token;
-          console.log('LoggedIn');
-          //socket login
-          return res.json({
-            success: true,
-            message: 'Sesión iniciada (:',
-            tienda: tienda,
-            token: token
+          tienda.tokens.push({
+            value: token,
+            date: new Date()
+          });
+
+          tienda.save(function(err, tienda) {
+            if (err) {
+              res.send({
+                error: true,
+                message: 'Oops! Ocurrió un error'
+              });
+              return;
+            }
+            console.log('LoggedIn');
+            console.log('session', req.session);
+            req.session.user = tienda;
+            return res.json({
+              tienda: tienda,
+              token: token
+            });
+          });
+        } else {
+          res.send({
+            error: true,
+            message: 'La contraseña no es correcta'
           });
         }
-        res.send({
-          error: true,
-          message: 'La contraseña no es correcta'
-        });
       });
     });
   },
-
+  //funciona
   logout: function(req, res) {
-    req.session.destroy(function(err) {
-      console.log(req.session);
-      res.send('logout successful');
+    req.user.tokens = [];
+    req.user.save(function(err, tienda) {
+      if (err) {
+        res.send({
+          error: true,
+          message: 'Oops! Ocurrió un error'
+        });
+        return;
+      }
+      req.session.destroy(function(err) {
+        console.log(req.session);
+        res.send('logout successful');
+      });
     });
   },
   // findTiendas: (lista de Tiendas)
