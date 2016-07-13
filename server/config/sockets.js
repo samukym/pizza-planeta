@@ -16,6 +16,22 @@ module.exports = {
       .on('connection', function(socket) {
         //cuando el cliente confirma pedido
         socket.on('iniciar', function(data) {
+          if(!data.token){
+            console.log("token no recibido");
+            return;
+          }
+          if(!data.pedidoId){
+            console.log("pedidoId no recibido");
+            return;
+          }
+          auth.validTokenMotorizado(data.token, function(err,motorizado){
+            if(err){
+              console.log("error validando Motorizado");
+              return;
+            }
+            socket.join(data.pedidoId);
+
+          });
           // validar token data.token
           // considerar conseguir id pedido por token de motori<.
           //currentPedidoId = data.pedidoId;
