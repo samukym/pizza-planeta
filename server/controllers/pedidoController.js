@@ -436,6 +436,7 @@ module.exports = {
   },
   // actualizarEstadoPedidoTienda: (tokenTienda, idPedido, co Est, estado) / (lista de pedidos),
   actualizarEstadoPedidoTienda: function(req, res) {
+    console.log('RUN: ', 'actualizarEstadoPedidoTienda');
     Pedido.findOne({
       pedidoId: req.body.idPedido
     }).populate('usuario').populate('tienda').exec(function(err, pedido) {
@@ -465,6 +466,8 @@ module.exports = {
         });
         return;
       }
+
+    console.log('TIENDA UPDATE ESTADO: ', nextEstado);
 
       pedido.updateEstado(nextEstado); // incrementar
       pedido.save();
