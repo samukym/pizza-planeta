@@ -3,13 +3,11 @@ var jwt = require('jsonwebtoken'),
   Motorizado = require('mongoose').model('Motorizado'),
   Tienda = require('mongoose').model('Tienda'),
   Pizza = require('mongoose').model('Pizza'),
-  app = require('../../server');
 
 module.exports = {
   validTokenUsuario: function(req, res, next) {
     // obtener token por post
     var token = req.body.token;
-
     // console.log('token',token);
     if (token) {
       jwt.verify(token, app.get('superSecret'), function(err, decoded) {
